@@ -8,7 +8,7 @@ load_dotenv()
 SECRET_KEY='616d612602596bdb203c129f354aa1fd48dff88a0a2ae2e703'
 
 
-DEBUG =True
+DEBUG =False
 
 SECRET_KEY = 'django-insecure-tpwdbv98e^f-71-mp=uei40^967uy($k^jf=*3t)@h0+e-y=$7'
 
@@ -34,3 +34,15 @@ DATABASES = {
     }
 }
 
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://excell-academy.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://excell-academy.onrender.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
