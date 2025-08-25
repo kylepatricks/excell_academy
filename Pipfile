@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+stripe = "*"
+python-decouple = "*"
+django-crispy-forms = "*"
+crispy-bootstrap5 = "*"
+pillow = "*"
+paystackpy = "*"
+python-dotenv = "*"
+whitenoise = "*"
+psycopg2-binary = "*"
+dj-database-url = "*"
+waitress = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.13"

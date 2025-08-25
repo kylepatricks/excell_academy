@@ -1,0 +1,37 @@
+# render.yaml - Updated for Windows compatibility
+services:
+  - type: web
+    name: excell-academy-web
+    env: python
+    plan: free
+    region: ohio
+    buildCommand: "./build.sh"
+    startCommand: "waitress-serve --port=$PORT excell_academy.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "5.2.5"
+      - key: DJANGO_SETTINGS_MODULE
+        value: "excell_academy.settings.prod"
+      - key: DATABASE_URL
+        fromSecret: DATABASE_URL
+      - key: SECRET_KEY
+        fromSecret: SECRET_KEY
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,excellacademy.com,www.excellacademy.com,127.0.0.1"
+      - key: PAYSTACK_SECRET_KEY
+        fromSecret: PAYSTACK_SECRET_KEY
+      - key: PAYSTACK_PUBLIC_KEY
+        fromSecret: PAYSTACK_PUBLIC_KEY
+      - key: EMAIL_HOST
+        fromSecret: EMAIL_HOST
+      - key: EMAIL_HOST_USER
+        fromSecret: EMAIL_HOST_USER
+      - key: EMAIL_HOST_PASSWORD
+        fromSecret: EMAIL_HOST_PASSWORD
+      - key: DEFAULT_FROM_EMAIL
+        value: "mysmsapp@gmail.com"
+    healthCheckPath: /health/
+    healthCheckTimeout: 120
+    autoDeploy: true

@@ -1,0 +1,895 @@
+<!-- templates/core/index.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Excel International Academy - Quality Education for Future Leaders{% endblock %}
+
+{% block content %}
+
+<body class="{% if user.is_authenticated %}user-logged-in{% endif %}">
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <h2 class="m-0">Excel Academy</h2>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#about">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#academics">Academics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#facilities">Facilities</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#gallery">Gallery</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                </li>
+                <li class="nav-item ms-lg-3">
+                    <a class="btn btn-outline-light" href="#apply">Apply Now</a>
+                </li>
+                <li class="nav-item ms-lg-2">
+                    <a class="btn btn-light" href="/accounts/login/">Parent Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="/notifications/">
+                        <i class="fas fa-bell"></i>
+                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                            0
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4 animate__animated animate__fadeInDown">Shaping Future Leaders Through Excellence</h1>
+                <p class="lead mb-5 animate__animated animate__fadeInUp">At Excel International Academy, we provide world-class education that empowers students to achieve their full potential in a nurturing and innovative environment.</p>
+                <div class="d-flex justify-content-center gap-3 animate__animated animate__fadeInUp">
+                    <a href="#apply" class="btn btn-primary btn-lg">Enroll Now</a>
+                    <a href="#about" class="btn btn-outline-light btn-lg">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="stats-box animate-on-scroll">
+                    <i class="fas fa-graduation-cap mb-3 text-primary"></i>
+                    <h3 class="counter" data-target="1500">0</h3>
+                    <p class="mb-0">Students Enrolled</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box animate-on-scroll">
+                    <i class="fas fa-chalkboard-teacher mb-3 text-primary"></i>
+                    <h3 class="counter" data-target="85">0</h3>
+                    <p class="mb-0">Qualified Teachers</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box animate-on-scroll">
+                    <i class="fas fa-school mb-3 text-primary"></i>
+                    <h3 class="counter" data-target="12">0</h3>
+                    <p class="mb-0">Modern Facilities</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box animate-on-scroll">
+                    <i class="fas fa-trophy mb-3 text-primary"></i>
+                    <h3 class="counter" data-target="32">0</h3>
+                    <p class="mb-0">Awards Won</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80" 
+                     alt="About Our School" 
+                     class="img-fluid rounded shadow animate-on-scroll">
+            </div>
+            <div class="col-lg-6 animate-on-scroll">
+                <h2 class="section-title">About Our School</h2>
+                <p class="lead">Excel International Academy is a premier educational institution committed to academic excellence and holistic development.</p>
+                <p>Founded in 2005, we have consistently ranked among the top schools in the region, with a proven track record of outstanding academic performance and character development.</p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex">
+                            <div class="me-3 text-primary">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Our Mission</h5>
+                                <p class="mb-0">To provide quality education that empowers students to excel.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex">
+                            <div class="me-3 text-primary">
+                                <i class="fas fa-eye fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Our Vision</h5>
+                                <p class="mb-0">To be a world-class institution nurturing future leaders.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex">
+                            <div class="me-3 text-primary">
+                                <i class="fas fa-star fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Core Values</h5>
+                                <p class="mb-0">Excellence, Integrity, Innovation, Respect</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex">
+                            <div class="me-3 text-primary">
+                                <i class="fas fa-award fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Accreditation</h5>
+                                <p class="mb-0">Fully accredited by the Ministry of Education</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title animate-on-scroll">Why Choose Excel Academy?</h2>
+            <p class="lead animate-on-scroll">We offer an unparalleled educational experience that sets us apart</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 animate-on-scroll">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-box">
+                        <i class="fas fa-atom"></i>
+                    </div>
+                    <h4 class="text-center mb-3">STEM Focus</h4>
+                    <p class="text-center">Our cutting-edge Science, Technology, Engineering and Math programs prepare students for the careers of tomorrow.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-box">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h4 class="text-center mb-3">Global Curriculum</h4>
+                    <p class="text-center">We combine the best of international and local curricula to provide a truly global education.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-box">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4 class="text-center mb-3">Holistic Development</h4>
+                    <p class="text-center">Beyond academics, we nurture creativity, leadership, and social responsibility in every student.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-box">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h4 class="text-center mb-3">Tech Integration</h4>
+                    <p class="text-center">Smart classrooms and 1:1 device programs ensure students are tech-savvy and future-ready.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-box">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h4 class="text-center mb-3">University Pathways</h4>
+                    <p class="text-center">Our graduates gain admission to top universities worldwide with our dedicated counseling.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="feature-card p-4 h-100">
+                    <div class="icon-box">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h4 class="text-center mb-3">Community Service</h4>
+                    <p class="text-center">We instill values of social responsibility through meaningful community engagement programs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Academics Section -->
+<section id="academics" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title animate-on-scroll">Our Academic Programs</h2>
+            <p class="lead animate-on-scroll">Tailored learning paths for every stage of development</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1588072432904-843af37f03ed?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80" 
+                            class="card-img-top" 
+                            alt="Early Years">
+                    <div class="card-body">
+                        <h4 class="card-title">Early Years (3-5)</h4>
+                        <p class="card-text">Our play-based learning approach nurtures curiosity and builds foundational skills in a safe, stimulating environment.</p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-primary me-2"></i> Montessori-inspired curriculum</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> Sensory learning activities</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> Social-emotional development</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://unsplash.com/photos/lUaaKCUANVI/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzU1MzQ5Mjc0fA&force=true" 
+                            class="card-img-top" 
+                            alt="Primary School">
+                    <div class="card-body">
+                        <h4 class="card-title">Primary School (6-11)</h4>
+                        <p class="card-text">A balanced curriculum that fosters academic excellence while encouraging creativity and critical thinking.</p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-primary me-2"></i> Core subject mastery</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> Project-based learning</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> Character education</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80" 
+                            class="card-img-top" 
+                            alt="Secondary School">
+                    <div class="card-body">
+                        <h4 class="card-title">Secondary School (12-18)</h4>
+                        <p class="card-text">Rigorous academic preparation combined with leadership development and career exploration.</p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-primary me-2"></i> Advanced placement courses</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> College counseling</li>
+                            <li><i class="fas fa-check text-primary me-2"></i> Entrepreneurship programs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Facilities Section -->
+<section id="facilities" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title animate-on-scroll">Our World-Class Facilities</h2>
+            <p class="lead animate-on-scroll">State-of-the-art infrastructure for optimal learning</p>
+        </div>
+        <div class="row g-4" id="facilities-container">
+                {% for facility in facilities %}
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <img src="{{ facility.image.url }}" 
+                            class="card-img-top" 
+                            alt="{{ facility.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ facility.title }}</h5>
+                            <p class="card-text">{{ facility.description|truncatewords:20 }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <a href="#" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No facilities to display at the moment.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if facilities.count > 3 %}
+            <div class="text-center mt-4">
+                <a href="{% url 'facilities' %}" class="btn btn-primary">View All Facilities</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-img-top overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80" 
+                                class="img-fluid w-100" 
+                                alt="Science Labs">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title">Science & Computer Labs</h4>
+                        <p class="card-text">Fully equipped laboratories for hands-on experimentation and technological exploration.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">STEM</span>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-img-top overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1541178735493-479c1a27ed24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80" 
+                                class="img-fluid w-100" 
+                                alt="Library">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title">Digital Library</h4>
+                        <p class="card-text">A vast collection of physical and digital resources to support research and reading.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">Resources</span>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-img-top overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1547347298-4074fc3086f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                class="img-fluid w-100" 
+                                alt="Sports">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title">Sports Complex</h4>
+                        <p class="card-text">Olympic-standard facilities for athletics, swimming, basketball, and more.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">Athletics</span>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5 animate-on-scroll">
+            <a href="#" class="btn btn-primary">Explore All Facilities</a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title animate-on-scroll">What Parents Say</h2>
+            <p class="lead animate-on-scroll">Hear from our school community</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 animate-on-scroll">
+                <div class="testimonial-card p-4 h-100 bg-light">
+                    <div class="d-flex mb-3">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" 
+                                class="rounded-circle me-3" 
+                                width="60" 
+                                height="60" 
+                                alt="Parent">
+                        <div>
+                            <h5 class="mb-1">Sarah Johnson</h5>
+                            <p class="text-muted mb-0">Parent of Grade 5 Student</p>
+                        </div>
+                    </div>
+                    <p class="mb-0">"The personalized attention my daughter receives at Excel Academy is remarkable. Her confidence and academic performance have soared since joining."</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="testimonial-card p-4 h-100 bg-light">
+                    <div class="d-flex mb-3">
+                        <img src="https://randomuser.me/api/portraits/men/45.jpg" 
+                                class="rounded-circle me-3" 
+                                width="60" 
+                                height="60" 
+                                alt="Parent">
+                        <div>
+                            <h5 class="mb-1">David Thompson</h5>
+                            <p class="text-muted mb-0">Parent of Grade 10 Student</p>
+                        </div>
+                    </div>
+                    <p class="mb-0">"The STEM program prepared my son so well that he's now interning at a tech startup at just 16. The opportunities here are incredible."</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="testimonial-card p-4 h-100 bg-light">
+                    <div class="d-flex mb-3">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" 
+                                class="rounded-circle me-3" 
+                                width="60" 
+                                height="60" 
+                                alt="Parent">
+                        <div>
+                            <h5 class="mb-1">Amina Mohammed</h5>
+                            <p class="text-muted mb-0">Parent of Kindergarten Student</p>
+                        </div>
+                    </div>
+                    <p class="mb-0">"I was nervous about my child starting school, but the nurturing environment and dedicated teachers made the transition so smooth."</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Gallery Section -->
+<section id="gallery" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title animate-on-scroll">School Life in Pictures</h2>
+            <p class="lead animate-on-scroll">Moments that define the Excel experience</p>
+        </div>
+        
+        <div class="row g-3">
+            <div class="col-md-4 col-6 animate-on-scroll">
+                <div class="gallery-item">
+                    <img src="https://unsplash.com/photos/lUaaKCUANVI/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzU1MzQ5Mjc0fA&force=true" 
+                            class="img-fluid w-100" 
+                            alt="Gallery Image">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus text-white fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-6 animate-on-scroll">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80" 
+                            class="img-fluid w-100" 
+                            alt="Gallery Image">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus text-white fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-6 animate-on-scroll">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1541178735493-479c1a27ed24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80" 
+                            class="img-fluid w-100" 
+                            alt="Gallery Image">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus text-white fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-6 animate-on-scroll">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1547347298-4074fc3086f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                            class="img-fluid w-100" 
+                            alt="Gallery Image">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus text-white fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-6 animate-on-scroll">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80" 
+                            class="img-fluid w-100" 
+                            alt="Gallery Image">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus text-white fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-6 animate-on-scroll">
+                <div class="gallery-item">
+                    <img src="https://unsplash.com/photos/lUaaKCUANVI/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzU1MzQ5Mjc0fA&force=true" 
+                            class="img-fluid w-100" 
+                            alt="Gallery Image">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus text-white fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4 animate-on-scroll">
+            <a href="#" class="btn btn-outline-primary">View Full Gallery</a>
+        </div>
+    </div>
+</section>
+
+<!-- Application Form Section -->
+<section id="apply" class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 animate-on-scroll">
+                <div class="application-form">
+                    <div class="text-center mb-4">
+                        <h2 class="section-title">Enrollment Application</h2>
+                        <p>Begin your child's journey to excellence</p>
+                    </div>
+                    <div id="alertsContainer"></div>
+                    <form id="enrollmentForm" method="post" action="{% url 'apply' %}">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">Parent's First Name</label>
+                                <input type="text" class="form-control" id="firstName" name="first_name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Parent's Last Name</label>
+                                <input type="text" class="form-control" id="lastName" name="last_name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="childName" class="form-label">Child's Full Name</label>
+                                <input type="text" class="form-control" id="childName" name="child_name" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="childAge" class="form-label">Child's Age</label>
+                                <input type="number" class="form-control" id="childAge" name="child_age" min="3" max="18" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="grade" class="form-label">Desired Grade</label>
+                                <select class="form-select" id="grade" name="desired_class" required>
+                                    <option value="" selected disabled>Select Grade</option>
+                                    <option value="Pre-K">Pre-K (3-4 years)</option>
+                                    <option value="Kindergarten">Kindergarten (5 years)</option>
+                                    <option value="Grade 1">Grade 1</option>
+                                    <option value="Grade 2">Grade 2</option>
+                                    <option value="Grade 3">Grade 3</option>
+                                    <option value="Grade 4">Grade 4</option>
+                                    <option value="Grade 5">Grade 5</option>
+                                    <option value="Grade 6">Grade 6</option>
+                                    <option value="Grade 7">Grade 7</option>
+                                    <option value="Grade 8">Grade 8</option>
+                                    <option value="Grade 9">Grade 9</option>
+                                    <option value="Grade 10">Grade 10</option>
+                                    <option value="Grade 11">Grade 11</option>
+                                    <option value="Grade 12">Grade 12</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="message" class="form-label">Additional Information</label>
+                                <textarea class="form-control" id="message" name="notes" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="agree" required>
+                                    <label class="form-check-label" for="agree">
+                                        I agree to the <a href="#">terms and conditions</a> and authorize Excel Academy to contact me.
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary px-4">Submit Application</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-5 mb-5 mb-lg-0 animate-on-scroll">
+                <h2 class="section-title text-start">Contact Us</h2>
+                <p class="lead">We'd love to hear from you</p>
+                <p>Have questions about our programs or the enrollment process? Our admissions team is ready to assist you.</p>
+                
+                <div class="mt-4">
+                    <div class="d-flex mb-3">
+                        <div class="me-3 text-primary">
+                            <i class="fas fa-map-marker-alt fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Address</h5>
+                            <p class="mb-0">123 Education Avenue, Knowledge City</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="me-3 text-primary">
+                            <i class="fas fa-phone-alt fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Phone</h5>
+                            <p class="mb-0">+1 (234) 567-8900</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="me-3 text-primary">
+                            <i class="fas fa-envelope fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Email</h5>
+                            <p class="mb-0">admissions@excelacademy.edu</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="me-3 text-primary">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Office Hours</h5>
+                            <p class="mb-0">Monday-Friday: 8:00 AM - 5:00 PM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7 animate-on-scroll">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4">Send Us a Message</h4>
+                        <form id="contactForm" method="post" action="{% url 'contact' %}">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Your Name</label>
+                                    <input type="text" class="form-control" name="name" placeholder="Name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" name="email" placeholder="Email" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea name="message" class="form-control" placeholder="Message" required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Send Message</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div id="formResponse"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<div class="animate-on-scroll">
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.215256018687!2d-73.9878446845938!3d40.7484404793279!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1623251156835!5m2!1sen!2sus" 
+            width="100%" 
+            height="450" 
+            style="border:0;" 
+            allowfullscreen="" 
+            loading="lazy"></iframe>
+</div>
+
+<!-- Footer -->
+<footer class="animate-on-scroll">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h3 class="text-white mb-4">Excel International Academy</h3>
+                <p>Providing world-class education since 2005. Our mission is to nurture curious, compassionate, and capable leaders for tomorrow's world.</p>
+                <div class="social-icons mt-4">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h4 class="text-white mb-4">Quick Links</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-white-50">Home</a></li>
+                    <li class="mb-2"><a href="#about" class="text-white-50">About Us</a></li>
+                    <li class="mb-2"><a href="#academics" class="text-white-50">Academics</a></li>
+                    <li class="mb-2"><a href="#facilities" class="text-white-50">Facilities</a></li>
+                    <li class="mb-2"><a href="#gallery" class="text-white-50">Gallery</a></li>
+                    <li class="mb-2"><a href="#contact" class="text-white-50">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <h4 class="text-white mb-4">Programs</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-white-50">Early Childhood</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Elementary School</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Middle School</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">High School</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">STEM Programs</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Extracurriculars</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <h4 class="text-white mb-4">Newsletter</h4>
+                <p>Subscribe to our newsletter for the latest updates and news.</p>
+                <form class="mt-3">
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Your Email" required>
+                        <button class="btn btn-primary" type="submit">Subscribe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <hr class="mt-4 bg-white-10">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0">&copy; 2023 Excel International Academy. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="mb-0">
+                    <a href="#" class="text-white-50 me-3">Privacy Policy</a>
+                    <a href="#" class="text-white-50">Terms of Service</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Application Submitted Successfully</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle text-success fa-5x"></i>
+                </div>
+                <h4 class="mb-3">Thank You!</h4>
+                <p>Your application has been received successfully. We will review it and contact you within 3-5 business days.</p>
+                <p>A confirmation email has been sent to your provided email address.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Response Modal -->
+<div class="modal fade" id="responseModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body" id="modalMessage"></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Form submission with AJAX
+        $('#enrollmentForm').on('submit', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        $('#successModal').modal('show');
+                        form[0].reset();
+                    } else {
+                        $('#modalMessage').text(response.message || 'An error occurred. Please try again.');
+                        $('#responseModal').modal('show');
+                    }
+                },
+                error: function() {
+                    $('#modalMessage').text('An error occurred. Please try again.');
+                    $('#responseModal').modal('show');
+                }
+            });
+        });
+
+        // Contact form submission
+        $('#contactForm').on('submit', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        $('#modalMessage').text('Your message has been sent successfully! We will respond as soon as possible.');
+                        $('#responseModal').modal('show');
+                        form[0].reset();
+                    } else {
+                        $('#modalMessage').text(response.message || 'An error occurred. Please try again.');
+                        $('#responseModal').modal('show');
+                    }
+                },
+                error: function() {
+                    $('#modalMessage').text('An error occurred. Please try again.');
+                    $('#responseModal').modal('show');
+                }
+            });
+        });
+
+        // Counter animation
+        $('.counter').each(function() {
+            $(this).prop('Counter', 0).animate({
+                Counter: $(this).data('target')
+            }, {
+                duration: 2000,
+                easing: 'swing',
+                step: function(now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
+        });
+
+        // Scroll animation
+        function animateOnScroll() {
+            $('.animate-on-scroll').each(function() {
+                var position = $(this).offset().top;
+                var scroll = $(window).scrollTop();
+                var windowHeight = $(window).height();
+                
+                if (scroll + windowHeight - 100 > position) {
+                    $(this).addClass('animated');
+                }
+            });
+        }
+
+        $(window).on('scroll', animateOnScroll);
+        animateOnScroll();
+    });
+</script>
+{% endblock %}

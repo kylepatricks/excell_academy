@@ -1,0 +1,51 @@
+<!-- templates/notifications/send_success.html -->
+{% extends 'base.html' %}
+
+{% block title %}Notification Sent - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Notification Sent Successfully</h1>
+        <div>
+            <a href="{% url 'send_notification' %}" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-2"></i> Send Another
+            </a>
+            <a href="{% url 'notification_list' %}" class="btn btn-secondary">
+                <i class="fas fa-list me-2"></i> View Notifications
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle fa-5x text-success"></i>
+                    </div>
+                    <h3 class="text-success mb-3">Notification Sent Successfully!</h3>
+                    <p class="lead">Your notification has been delivered to the selected recipients.</p>
+                    
+                    {% if messages %}
+                    <div class="alert alert-info mt-4">
+                        {% for message in messages %}
+                        <p class="mb-0"><strong>{{ message }}</strong></p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'send_notification' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-paper-plane me-2"></i> Send Another Notification
+                        </a>
+                        <a href="{% url 'notification_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-2"></i> View All Notifications
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

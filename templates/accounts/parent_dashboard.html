@@ -1,0 +1,197 @@
+<!-- templates/accounts/parent_dashboard.html -->
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Parent Dashboard - Excel Academy{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Parent Dashboard</h1>
+        {% if has_outstanding_fees %}
+        <a href="{% url 'view_invoices' %}" class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm">
+            <i class="fas fa-credit-card fa-sm text-white-50"></i> Pay Outstanding Fees
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Children Overview -->
+    <div class="row mb-4">
+        {% for child_data in children_data %}
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {{ child_data.child.user.get_full_name }} (Grade {{ child_data.child.current_class.name }})
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if child_data.recent_grades %}
+                                    {% with first_grade=child_data.recent_grades.0 %}
+                                        {{ first_grade.percentage|floatformat:2 }}%
+                                    {% endwith %}
+                                {% else %}
+                                    No grades yet
+                                {% endif %}
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-{% if child_data.outstanding_fees %}danger{% else %}success{% endif %}">
+                                    Fees: {% if child_data.outstanding_fees %}Pending{% else %}Paid{% endif %}
+                                </span>
+                                <span class="badge bg-info">Attendance: 95%</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-child fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Children Details -->
+    {% for child_data in children_data %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">{{ child_data.child.user.get_full_name }}'s Progress</h6>
+                    <div>
+                        <a href="#" class="btn btn-sm btn-info">View Report Card</a>
+                        <a href="#" class="btn btn-sm btn-warning">Attendance Details</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Recent Grades -->
+                        <div class="col-xl-6 col-lg-6">
+                            <h6 class="font-weight-bold mb-3">Recent Grades</h6>
+                            {% if child_data.recent_grades %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th>Score</th>
+                                            <th>Grade</th>
+                                            <th>Term</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for grade in child_data.recent_grades %}
+                                        <tr>
+                                            <td>{{ grade.subject.name }}</td>
+                                            <td>{{ grade.score }}/{{ grade.maximum_score }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if grade.percentage >= 80 %}success{% elif grade.percentage >= 60 %}warning{% else %}danger{% endif %}">
+                                                    {{ grade.percentage|floatformat:1 }}%
+                                                </span>
+                                            </td>
+                                            <td>{{ grade.term }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No grades available yet.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Attendance -->
+                        <div class="col-xl-6 col-lg-6">
+                            <h6 class="font-weight-bold mb-3">Recent Attendance</h6>
+                            {% if child_data.attendance %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in child_data.attendance %}
+                                        <tr>
+                                            <td>{{ record.date|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if record.status == 'present' %}success{% elif record.status == 'late' %}warning{% else %}danger{% endif %}">
+                                                    {{ record.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>{{ record.remarks|default:"-" }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No attendance records</p>
+                            {% endif %}
+
+                            <!-- Fee Status -->
+                            <h6 class="font-weight-bold mt-4 mb-3">Fee Status</h6>
+                            {% if child_data.outstanding_fees %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                There are {{ child_data.outstanding_fees.count }} outstanding invoices.
+                                <a href="{% url 'view_invoices' %}" class="alert-link">View and pay now</a>.
+                            </div>
+                            {% else %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                All fees are paid up to date.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'view_invoices' %}" class="btn btn-light btn-block text-center p-3">
+                                <i class="fas fa-credit-card fa-2x text-primary mb-2"></i>
+                                <h6 class="mb-0">Pay Fees</h6>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-light btn-block text-center p-3">
+                                <i class="fas fa-calendar-alt fa-2x text-success mb-2"></i>
+                                <h6 class="mb-0">View Attendance</h6>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-light btn-block text-center p-3">
+                                <i class="fas fa-graduation-cap fa-2x text-info mb-2"></i>
+                                <h6 class="mb-0">Academic Progress</h6>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="#" class="btn btn-light btn-block text-center p-3">
+                                <i class="fas fa-envelope fa-2x text-warning mb-2"></i>
+                                <h6 class="mb-0">Contact Teacher</h6>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

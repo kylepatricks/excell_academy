@@ -1,0 +1,234 @@
+<!-- templates/notifications/send.html -->
+{% extends 'base.html' %}
+
+{% block title %}Send Notifications - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Send Notifications</h1>
+        <a href="{% url 'notification_list' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Notifications
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Notification Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Compose Notification</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Recipient Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Send To</label>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="recipient_type" id="allParents" value="all_parents" checked>
+                                <label class="form-check-label" for="allParents">
+                                    All Parents
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="recipient_type" id="allTeachers" value="all_teachers">
+                                <label class="form-check-label" for="allTeachers">
+                                    All Teachers
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="recipient_type" id="allStudents" value="all_students">
+                                <label class="form-check-label" for="allStudents">
+                                    All Students
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipient_type" id="specificUsers" value="specific">
+                                <label class="form-check-label" for="specificUsers">
+                                    Specific Users
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Specific Users Selection (hidden by default) -->
+                        <div class="mb-4" id="specificUsersSection" style="display: none;">
+                            <label class="form-label fw-bold">Select Users</label>
+                            <select class="form-select" multiple size="5" name="recipients" id="recipientsSelect">
+                                {% for user in users %}
+                                <option value="{{ user.id }}">
+                                    {{ user.get_full_name }} ({{ user.get_user_type_display }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple users</small>
+                        </div>
+
+                        <!-- Notification Type -->
+                        <div class="mb-4">
+                            <label for="notification_type" class="form-label fw-bold">Notification Type</label>
+                            <select class="form-select" id="notification_type" name="notification_type">
+                                <option value="info">Information</option>
+                                <option value="warning">Warning</option>
+                                <option value="success">Success</option>
+                                <option value="error">Error</option>
+                                <option value="fee">Fee Payment</option>
+                                <option value="academic">Academic</option>
+                                <option value="attendance">Attendance</option>
+                            </select>
+                        </div>
+
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   placeholder="Enter notification title" required maxlength="200">
+                            <small class="form-text text-muted">Maximum 200 characters</small>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="mb-4">
+                            <label for="message" class="form-label fw-bold">Message</label>
+                            <textarea class="form-control" id="message" name="message" 
+                                      rows="6" placeholder="Enter your notification message here..." required></textarea>
+                        </div>
+
+                        <!-- Related URL (Optional) -->
+                        <div class="mb-4">
+                            <label for="related_url" class="form-label fw-bold">Related URL (Optional)</label>
+                            <input type="url" class="form-control" id="related_url" name="related_url" 
+                                   placeholder="https://example.com/related-page">
+                            <small class="form-text text-muted">Users will be directed to this URL when they click the notification</small>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i> Send Notification
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Notification Guidelines -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Notification Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Best Practices</h6>
+                        <ul class="mb-0 ps-3">
+                            <li>Keep titles concise and descriptive</li>
+                            <li>Use appropriate notification types</li>
+                            <li>Include clear calls to action</li>
+                            <li>Test notifications before sending to large groups</li>
+                        </ul>
+                    </div>
+
+                    <h6 class="fw-bold mt-4">Notification Types</h6>
+                    <div class="small">
+                        <span class="badge bg-info me-1">Info</span> General information
+                        <br>
+                        <span class="badge bg-warning me-1">Warning</span> Important alerts
+                        <br>
+                        <span class="badge bg-success me-1">Success</span> Positive updates
+                        <br>
+                        <span class="badge bg-danger me-1">Error</span> Critical issues
+                        <br>
+                        <span class="badge bg-primary me-1">Fee</span> Payment reminders
+                        <br>
+                        <span class="badge bg-secondary me-1">Academic</span> Academic updates
+                        <br>
+                        <span class="badge bg-dark me-1">Attendance</span> Attendance reports
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Notifications</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_notifications %}
+                    <div class="list-group list-group-flush">
+                        {% for notification in recent_notifications|slice:":5" %}
+                        <div class="list-group-item px-0 py-2">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ notification.title|truncatewords:5 }}</h6>
+                                <small class="text-{{ notification.notification_type }}">
+                                    {{ notification.get_notification_type_display }}
+                                </small>
+                            </div>
+                            <p class="mb-1 small">{{ notification.message|truncatewords:10 }}</p>
+                            <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No recent notifications</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Show/hide specific users section based on radio selection
+        $('input[name="recipient_type"]').change(function() {
+            if ($(this).val() === 'specific') {
+                $('#specificUsersSection').show();
+            } else {
+                $('#specificUsersSection').hide();
+            }
+        });
+
+        // Character counter for title
+        $('#title').on('input', function() {
+            const maxLength = 200;
+            const currentLength = $(this).val().length;
+            const remaining = maxLength - currentLength;
+            
+            if (remaining < 0) {
+                $(this).val($(this).val().substring(0, maxLength));
+            }
+        });
+
+        // Form validation
+        $('form').submit(function(e) {
+            const title = $('#title').val().trim();
+            const message = $('#message').val().trim();
+            
+            if (!title) {
+                e.preventDefault();
+                alert('Please enter a title for the notification.');
+                $('#title').focus();
+                return false;
+            }
+            
+            if (!message) {
+                e.preventDefault();
+                alert('Please enter a message for the notification.');
+                $('#message').focus();
+                return false;
+            }
+            
+            // If specific users is selected but no users are chosen
+            if ($('input[name="recipient_type"]:checked').val() === 'specific' && 
+                $('#recipientsSelect').val().length === 0) {
+                e.preventDefault();
+                alert('Please select at least one user for specific notification.');
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock %}

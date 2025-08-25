@@ -1,0 +1,166 @@
+<!-- templates/core/admin/application_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}Application Details - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Application Details</h1>
+        <a href="{% url 'application_list' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Applications
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Application Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Application for {{ application.child_name }}</h6>
+                    <span class="badge bg-{% if application.status == 'approved' %}success{% elif application.status == 'rejected' %}danger{% elif application.status == 'pending' %}warning{% else %}info{% endif %}">
+                        {{ application.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="font-weight-bold">Parent Information</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Name</th>
+                                    <td>{{ application.first_name }} {{ application.last_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>{{ application.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>{{ application.phone }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="font-weight-bold">Child Information</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Child's Name</th>
+                                    <td>{{ application.child_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Age</th>
+                                    <td>{{ application.child_age }} years</td>
+                                </tr>
+                                <tr>
+                                    <th>Desired Class</th>
+                                    <td>{{ application.desired_class }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if application.notes %}
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold">Additional Information</h6>
+                        <p class="border rounded p-3 bg-light">{{ application.notes }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold">Application Details</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th>Application Date</th>
+                                <td>{{ application.application_date|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% if application.reviewed_by %}
+                            <tr>
+                                <th>Reviewed By</th>
+                                <td>{{ application.reviewed_by.get_full_name }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if application.review_date %}
+                            <tr>
+                                <th>Review Date</th>
+                                <td>{{ application.review_date|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+
+                    {% if application.review_notes %}
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold">Review Notes</h6>
+                        <p class="border rounded p-3 bg-light">{{ application.review_notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Application Actions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Application Actions</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Update Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="pending" {% if application.status == 'pending' %}selected{% endif %}>Pending Review</option>
+                                <option value="under_review" {% if application.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                                <option value="approved" {% if application.status == 'approved' %}selected{% endif %}>Approved</option>
+                                <option value="rejected" {% if application.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                                <option value="waiting_list" {% if application.status == 'waiting_list' %}selected{% endif %}>Waiting List</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="review_notes" class="form-label">Review Notes</label>
+                            <textarea class="form-control" id="review_notes" name="review_notes" rows="4" placeholder="Add review notes...">{{ application.review_notes }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-2"></i>Update Application
+                        </button>
+                    </form>
+
+                    <hr>
+
+                    <div class="d-grid gap-2">
+                        <a href="mailto:{{ application.email }}" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope me-2"></i>Email Parent
+                        </a>
+                        <button class="btn btn-outline-info">
+                            <i class="fas fa-download me-2"></i>Export Application
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Statistics -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Application Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-clock fa-2x text-warning"></i>
+                            <h6 class="mt-2">Application Age</h6>
+                            <p class="mb-0">{{ application.application_date|timesince }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <i class="fas fa-calendar fa-2x text-info"></i>
+                            <h6 class="mt-2">Applied On</h6>
+                            <p class="mb-0">{{ application.application_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

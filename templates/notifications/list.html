@@ -1,0 +1,179 @@
+<!-- templates/notifications/list.html -->
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Notifications - {{ user.get_user_type_display }} Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Notifications</h1>
+        <div>
+            <button id="markAllRead" class="btn btn-sm btn-primary">
+                <i class="fas fa-check-double me-1"></i> Mark All as Read
+            </button>
+        </div>
+    </div>
+
+    <!-- Notifications Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <a href="?filter=all" class="btn btn-outline-primary">All</a>
+                        <a href="?filter=unread" class="btn btn-outline-warning">Unread</a>
+                        <a href="?filter=read" class="btn btn-outline-success">Read</a>
+                    </div>
+                    <div class="btn-group ms-2" role="group">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-filter me-1"></i> Type
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="?type=all">All Types</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="?type=info">Information</a></li>
+                            <li><a class="dropdown-item" href="?type=warning">Warning</a></li>
+                            <li><a class="dropdown-item" href="?type=success">Success</a></li>
+                            <li><a class="dropdown-item" href="?type=error">Error</a></li>
+                            <li><a class="dropdown-item" href="?type=fee">Fee Payment</a></li>
+                            <li><a class="dropdown-item" href="?type=academic">Academic</a></li>
+                            <li><a class="dropdown-item" href="?type=attendance">Attendance</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {% if request.GET.filter == 'unread' %}Unread {% elif request.GET.filter == 'read' %}Read {% endif %}
+                Notifications
+                {% if request.GET.type and request.GET.type != 'all' %}({{ request.GET.type|title }}){% endif %}
+            </h6>
+            <span class="badge bg-primary">{{ notifications.count }} Total</span>
+        </div>
+        <div class="card-body">
+            {% if notifications %}
+            <div class="list-group">
+                {% for notification in notifications %}
+                <a href="{% if notification.related_url %}{{ notification.related_url }}{% else %}#{% endif %}" 
+                   class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-warning{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">
+                            {% if not notification.is_read %}
+                            <span class="badge bg-danger me-2">New</span>
+                            {% endif %}
+                            {{ notification.title }}
+                        </h6>
+                        <small>{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ notification.message }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-{{ notification.notification_type }}">
+                            <i class="fas fa-bell me-1"></i>{{ notification.get_notification_type_display }}
+                        </small>
+                        <button class="btn btn-sm btn-outline-secondary mark-read-btn" data-notification-id="{{ notification.id }}">
+                            <i class="fas fa-check me-1"></i>Mark as Read
+                        </button>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Notifications pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Last</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No notifications found</h5>
+                <p class="text-muted">You're all caught up! There are no notifications to display.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Mark individual notification as read
+        $('.mark-read-btn').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var btn = $(this);
+            var notificationId = btn.data('notification-id');
+            
+            $.ajax({
+                url: '{% url "mark_notification_read" 0 %}'.replace('0', notificationId),
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        btn.closest('.list-group-item').removeClass('list-group-item-warning');
+                        btn.find('i').removeClass('fa-check').addClass('fa-check-double');
+                        btn.addClass('disabled');
+                        
+                        // Update notification badge
+                        updateNotificationBadge();
+                    }
+                }
+            });
+        });
+        
+        // Mark all notifications as read
+        $('#markAllRead').click(function() {
+            $.ajax({
+                url: '{% url "mark_all_notifications_read" %}',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('.list-group-item').removeClass('list-group-item-warning');
+                        $('.mark-read-btn').addClass('disabled').find('i').removeClass('fa-check').addClass('fa-check-double');
+                        
+                        // Update notification badge
+                        updateNotificationBadge();
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

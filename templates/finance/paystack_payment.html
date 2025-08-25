@@ -1,0 +1,96 @@
+<!-- templates/finance/paystack_payment.html -->
+{% extends 'base.html' %}
+
+{% block title %}Pay with Paystack - Excel Academy{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Pay Invoice with Paystack</h1>
+        <a href="{% url 'view_invoices' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Invoices
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Payment Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img src="https://via.placeholder.com/200x60?text=Paystack" alt="Paystack" class="img-fluid mb-3">
+                        <h4>Secure Payment via Paystack</h4>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Invoice Number</th>
+                                <td>{{ invoice.invoice_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Student</th>
+                                <td>{{ invoice.student.user.get_full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ invoice.fee_structure.term }} {{ invoice.fee_structure.academic_year }}</td>
+                            </tr>
+                            <tr>
+                                <th>Amount Due</th>
+                                <td class="fw-bold">GHS{{ invoice.amount|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <th>Due Date</th>
+                                <td>{{ invoice.due_date|date:"M d, Y" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You will be redirected to Paystack's secure payment page to complete your transaction.
+                    </div>
+
+                    <form method="post" action="{% url 'initiate_paystack_payment' invoice.id %}">
+                        {% csrf_token %}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-credit-card me-2"></i> Proceed to Paystack
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Payment Security Info -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Payment Security</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <i class="fas fa-lock fa-2x text-success mb-2"></i>
+                            <h6>SSL Secure</h6>
+                            <small class="text-muted">256-bit encryption</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <i class="fas fa-shield-alt fa-2x text-primary mb-2"></i>
+                            <h6>PCI DSS Compliant</h6>
+                            <small class="text-muted">Industry standard security</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <i class="fas fa-check-circle fa-2x text-warning mb-2"></i>
+                            <h6>Verified</h6>
+                            <small class="text-muted">Paystack verified</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

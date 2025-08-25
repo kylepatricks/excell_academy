@@ -1,0 +1,290 @@
+<!-- templates/core/admin/application_list.html -->
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Applications - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Enrollment Applications</h1>
+        <div>
+            <span class="badge bg-primary p-2 me-2">
+                {{ applications.count }} Total Applications
+            </span>
+            <a href="{% url 'home' %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-globe me-1"></i> View Website
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 col-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Pending</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ applications|filter_status:"pending"|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Under Review</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ applications|filter_status:"under_review"|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-search fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Approved</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ applications|filter_status:"approved"|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Rejected</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ applications|filter_status:"rejected"|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Waiting List</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ applications|filter_status:"waiting_list"|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 col-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Total</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ applications.count }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="under_review" {% if status_filter == 'under_review' %}selected{% endif %}>Under Review</option>
+                        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                        <option value="waiting_list" {% if status_filter == 'waiting_list' %}selected{% endif %}>Waiting List</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="desired_class" class="form-label">Desired Class</label>
+                    <input type="text" class="form-control" id="desired_class" name="desired_class" 
+                           value="{{ desired_class_filter }}" placeholder="e.g., Grade 1">
+                </div>
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           placeholder="Search by name or email" value="{{ search_query }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Applications List</h6>
+            <div>
+                <span class="badge bg-info me-2">
+                    Showing {{ applications.count }} application{{ applications.count|pluralize }}
+                </span>
+                <a href="{% url 'application_list' %}" class="btn btn-sm btn-outline-secondary">Clear Filters</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="applicationsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Child Name</th>
+                            <th>Parent</th>
+                            <th>Desired Class</th>
+                            <th>Application Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr>
+                            <td>{{ application.child_name }}</td>
+                            <td>
+                                {{ application.first_name }} {{ application.last_name }}
+                                <br><small class="text-muted">{{ application.email }}</small>
+                                <br><small class="text-muted">{{ application.phone }}</small>
+                            </td>
+                            <td>{{ application.desired_class }}</td>
+                            <td>{{ application.application_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge bg-{% if application.status == 'approved' %}success{% elif application.status == 'rejected' %}danger{% elif application.status == 'pending' %}warning{% elif application.status == 'under_review' %}info{% else %}secondary{% endif %}">
+                                    {{ application.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'application_detail' application.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                {% if application.status == 'pending' %}
+                                <a href="{% url 'application_detail' application.id %}" class="btn btn-sm btn-success mt-1">
+                                    <i class="fas fa-edit me-1"></i>Review
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No applications found</h5>
+                                <p class="text-muted">Try adjusting your filters or check back later.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'application_list' %}?status=pending" class="btn btn-light btn-block text-center p-3">
+                                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                                <h6 class="mb-0">Pending</h6>
+                                <small class="text-muted">{{ applications|filter_status:"pending"|length }} applications</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'application_list' %}?status=under_review" class="btn btn-light btn-block text-center p-3">
+                                <i class="fas fa-search fa-2x text-info mb-2"></i>
+                                <h6 class="mb-0">Under Review</h6>
+                                <small class="text-muted">{{ applications|filter_status:"under_review"|length }} applications</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'application_list' %}?status=approved" class="btn btn-light btn-block text-center p-3">
+                                <i class="fas fa-check fa-2x text-success mb-2"></i>
+                                <h6 class="mb-0">Approved</h6>
+                                <small class="text-muted">{{ applications|filter_status:"approved"|length }} applications</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'application_list' %}?status=rejected" class="btn btn-light btn-block text-center p-3">
+                                <i class="fas fa-times fa-2x text-danger mb-2"></i>
+                                <h6 class="mb-0">Rejected</h6>
+                                <small class="text-muted">{{ applications|filter_status:"rejected"|length }} applications</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#applicationsTable').DataTable({
+            pageLength: 25,
+            ordering: true,
+            order: [[3, 'desc']],
+            responsive: true,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search applications..."
+            }
+        });
+    });
+</script>
+{% endblock %}

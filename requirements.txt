@@ -1,0 +1,10 @@
+Django==5.2.5
+python-decouple==3.8
+paystackpy==0.0.6
+django-crispy-forms==2.4
+crispy-bootstrap5==0.7
+Pillow==11.3.0
+whitenoise==6.9.0
+psycopg2-binary==2.9.10
+dj-database-url==3.0.1
+waitress==3.0.2

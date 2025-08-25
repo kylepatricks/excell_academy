@@ -1,0 +1,124 @@
+<!-- templates/accounts/teacher_profile.html -->
+{% extends 'base.html' %}
+
+{% block title %}Teacher Profile - Excel Academy{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Teacher Profile</h1>
+        <a href="{% url 'teacher_dashboard' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Profile Information</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ user.first_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ user.last_name }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ user.email }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="{{ user.phone }}">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="employee_id" class="form-label">Employee ID</label>
+                                <input type="text" class="form-control" id="employee_id" name="employee_id" 
+                                       value="{{ teacher.employee_id }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hire_date" class="form-label">Hire Date</label>
+                                <input type="date" class="form-control" id="hire_date" name="hire_date" 
+                                       value="{{ teacher.hire_date|date:'Y-m-d' }}">
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Teacher Information Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Teacher Details</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img class="img-fluid rounded-circle" src="https://via.placeholder.com/150" 
+                             alt="Profile picture" style="width: 150px; height: 150px;">
+                    </div>
+                    
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Employee ID</th>
+                            <td>{{ teacher.employee_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Hire Date</th>
+                            <td>{{ teacher.hire_date|date:"M d, Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>User Type</th>
+                            <td><span class="badge bg-primary">Teacher</span></td>
+                        </tr>
+                    </table>
+
+                    {% if teacher.assigned_class %}
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold">Assigned Class</h6>
+                        <p class="mb-1">{{ teacher.assigned_class.name }}</p>
+                        <small class="text-muted">{{ teacher.assigned_class.academic_year }}</small>
+                    </div>
+                    {% endif %}
+
+                    {% if teacher.subjects.all %}
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold">Subjects</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for subject in teacher.subjects.all %}
+                            <span class="badge bg-info">{{ subject.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

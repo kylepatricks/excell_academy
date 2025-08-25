@@ -1,0 +1,164 @@
+<!-- templates/finance/payment_history.html -->
+{% extends 'base.html' %}
+
+{% block title %}Payment History - Parent Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Payment History</h1>
+        <a href="{% url 'view_invoices' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary">
+            <i class="fas fa-file-invoice me-1"></i> View Invoices
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Payments</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ payments.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Amount Paid</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                GHS{{ total_amount|default:0|floatformat:2 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Successful Payments</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ successful_payments }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Confirmation</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ pending_payments }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Payment History</h6>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary btn-sm">All</button>
+                <button type="button" class="btn btn-outline-success btn-sm">Successful</button>
+                <button type="button" class="btn btn-outline-warning btn-sm">Pending</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="paymentsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Invoice</th>
+                            <th>Student</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Reference</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                            <td>{{ payment.invoice.invoice_number }}</td>
+                            <td>{{ payment.invoice.student.user.get_full_name }}</td>
+                            <td>GHS{{ payment.amount|floatformat:2 }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ payment.get_payment_method_display }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if payment.invoice.status == 'paid' %}success{% else %}warning{% endif %}">
+                                    {{ payment.invoice.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ payment.transaction_id|default:"N/A" }}</small>
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-info">View</a>
+                                <a href="#" class="btn btn-sm btn-outline-secondary">Receipt</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No payments found</h5>
+                                <p class="text-muted">You haven't made any payments yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#paymentsTable').DataTable({
+            pageLength: 10,
+            ordering: true,
+            order: [[0, 'desc']],
+            responsive: true
+        });
+    });
+</script>
+{% endblock %}

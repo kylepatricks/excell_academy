@@ -1,0 +1,295 @@
+<!-- templates/academics/enter_grades.html -->
+{% extends 'base.html' %}
+
+{% block title %}Enter Grades - Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Enter Grades</h1>
+        <div>
+            {% if assigned_class %}
+            <span class="badge bg-primary p-2">Class: {{ assigned_class.name }}{% if assigned_class.section %} {{ assigned_class.section }}{% endif %}</span>
+            {% else %}
+            <span class="badge bg-warning p-2">No class assigned</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not assigned_class %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Notice:</strong> You haven't been assigned to any class yet. Please contact the administration.
+    </div>
+    {% elif not subjects %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Notice:</strong> You haven't been assigned to any subjects yet. Please contact the administration.
+    </div>
+    {% elif not students %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Info:</strong> There are no students in your assigned class.
+    </div>
+    {% else %}
+    <!-- Grade Entry Form -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Enter Student Grades</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label for="subject" class="form-label fw-bold">Subject</label>
+                        <select class="form-select" id="subject" name="subject" required>
+                            <option value="" selected disabled>Select Subject</option>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.name }} ({{ subject.code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="term" class="form-label fw-bold">Term</label>
+                        <select class="form-select" id="term" name="term" required>
+                            <option value="" selected disabled>Select Term</option>
+                            <option value="First Term">First Term</option>
+                            <option value="Second Term">Second Term</option>
+                            <option value="Third Term">Third Term</option>
+                            <option value="Mid Term">Mid Term</option>
+                            <option value="Final Term">Final Term</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="academic_year" class="form-label fw-bold">Academic Year</label>
+                        <input type="text" class="form-control" id="academic_year" name="academic_year" 
+                               placeholder="e.g., 2023-2024" required>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="gradesTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Admission No.</th>
+                                <th>Score</th>
+                                <th>Out of</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.user.get_full_name }}</td>
+                                <td>{{ student.admission_number }}</td>
+                                <td>
+                                    <input type="number" class="form-control score-input" 
+                                           name="score_{{ student.id }}" 
+                                           placeholder="0" min="0" max="100" step="0.01"
+                                           oninput="calculatePercentage(this)">
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control max-score-input" 
+                                           name="max_score_{{ student.id }}" 
+                                           value="100" min="1" max="1000" step="1"
+                                           oninput="calculatePercentage(this)">
+                                </td>
+                                <td>
+                                    <span class="percentage-display">0%</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save me-2"></i> Save Grades
+                    </button>
+                    <a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grade Guidelines -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Grading Guidelines</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="fw-bold">Grading Scale</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Percentage</th>
+                                    <th>Grade</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-success">
+                                    <td>90-100%</td>
+                                    <td>A</td>
+                                    <td>Excellent</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>80-89%</td>
+                                    <td>B</td>
+                                    <td>Very Good</td>
+                                </tr>
+                                <tr class="table-primary">
+                                    <td>70-79%</td>
+                                    <td>C</td>
+                                    <td>Good</td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td>60-69%</td>
+                                    <td>D</td>
+                                    <td>Satisfactory</td>
+                                </tr>
+                                <tr class="table-danger">
+                                    <td>0-59%</td>
+                                    <td>F</td>
+                                    <td>Needs Improvement</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="fw-bold">Best Practices</h6>
+                    <div class="alert alert-info">
+                        <ul class="mb-0">
+                            <li>Enter scores consistently for all students</li>
+                            <li>Use the same maximum score for the entire class</li>
+                            <li>Double-check scores before saving</li>
+                            <li>Save grades regularly to avoid data loss</li>
+                            <li>Use remarks to note exceptional circumstances</li>
+                        </ul>
+                    </div>
+                    
+                    <h6 class="fw-bold mt-4">Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="setAllMaxScores(100)">
+                            Set All Max Scores to 100
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="clearAllScores()">
+                            Clear All Scores
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function calculatePercentage(input) {
+        const row = input.closest('tr');
+        const scoreInput = row.querySelector('.score-input');
+        const maxScoreInput = row.querySelector('.max-score-input');
+        const percentageDisplay = row.querySelector('.percentage-display');
+        
+        const score = parseFloat(scoreInput.value) || 0;
+        const maxScore = parseFloat(maxScoreInput.value) || 1;
+        
+        if (maxScore > 0) {
+            const percentage = (score / maxScore) * 100;
+            percentageDisplay.textContent = percentage.toFixed(1) + '%';
+            
+            // Color code based on percentage
+            if (percentage >= 90) {
+                percentageDisplay.className = 'percentage-display text-success fw-bold';
+            } else if (percentage >= 80) {
+                percentageDisplay.className = 'percentage-display text-info fw-bold';
+            } else if (percentage >= 70) {
+                percentageDisplay.className = 'percentage-display text-primary fw-bold';
+            } else if (percentage >= 60) {
+                percentageDisplay.className = 'percentage-display text-warning fw-bold';
+            } else {
+                percentageDisplay.className = 'percentage-display text-danger fw-bold';
+            }
+        }
+    }
+    
+    function setAllMaxScores(value) {
+        document.querySelectorAll('.max-score-input').forEach(input => {
+            input.value = value;
+            calculatePercentage(input);
+        });
+    }
+    
+    function clearAllScores() {
+        if (confirm('Are you sure you want to clear all scores?')) {
+            document.querySelectorAll('.score-input').forEach(input => {
+                input.value = '';
+                calculatePercentage(input);
+            });
+        }
+    }
+    
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const subject = document.getElementById('subject');
+        const term = document.getElementById('term');
+        const academicYear = document.getElementById('academic_year');
+        
+        if (!subject.value || !term.value || !academicYear.value) {
+            e.preventDefault();
+            alert('Please fill in all required fields (Subject, Term, Academic Year).');
+            return false;
+        }
+        
+        // Validate scores
+        const scoreInputs = document.querySelectorAll('.score-input');
+        let hasEmptyScores = false;
+        
+        scoreInputs.forEach(input => {
+            if (!input.value.trim()) {
+                hasEmptyScores = true;
+                input.style.borderColor = 'red';
+            } else {
+                input.style.borderColor = '';
+            }
+        });
+        
+        if (hasEmptyScores) {
+            e.preventDefault();
+            alert('Please enter scores for all students.');
+            return false;
+        }
+    });
+
+    // Initialize DataTable
+    $(document).ready(function() {
+        $('#gradesTable').DataTable({
+            pageLength: 25,
+            ordering: true,
+            order: [[0, 'asc']],
+            responsive: true
+        });
+    });
+</script>
+
+<style>
+.percentage-display {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+}
+</style>
+{% endblock %}

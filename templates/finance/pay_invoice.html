@@ -1,0 +1,409 @@
+<!-- templates/finance/pay_invoice.html -->
+{% extends 'base.html' %}
+
+{% block title %}Pay Invoice - Parent Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Pay Invoice</h1>
+        <a href="{% url 'view_invoices' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Invoices
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Invoice Details -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Invoice Details</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Invoice Number</th>
+                                <td>{{ invoice.invoice_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Student</th>
+                                <td>{{ invoice.student.user.get_full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ invoice.fee_structure.term }} {{ invoice.fee_structure.academic_year }}</td>
+                            </tr>
+                            <tr>
+                                <th>Amount Due</th>
+                                <td class="fw-bold">GHS{{ invoice.amount|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <th>Due Date</th>
+                                <td>{{ invoice.due_date|date:"M d, Y" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span class="badge bg-{% if invoice.status == 'paid' %}success{% elif invoice.status == 'overdue' %}danger{% elif invoice.status == 'partial' %}info{% else %}warning{% endif %}">
+                                        {{ invoice.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Make Payment</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Amount Input -->
+                    <div class="mb-4">
+                        <label for="amount" class="form-label fw-bold">Payment Amount</label>
+                        <input type="number" class="form-control" id="amount" 
+                               value="{{ invoice.amount }}" min="1" max="{{ invoice.amount }}" step="0.01"
+                               onchange="updateAmount(this)">
+                        <small class="form-text text-muted">
+                            Enter the amount you want to pay (GHS{{ invoice.amount|floatformat:2 }} maximum)
+                        </small>
+                    </div>
+
+                    <!-- Pay with Paystack Button -->
+                    <div class="d-grid">
+                        <button id="paystack-btn" class="btn btn-success btn-lg">
+                            <i class="fas fa-credit-card me-2"></i> Pay Now with Paystack
+                        </button>
+                    </div>
+
+                    <!-- Alternative Payment Methods -->
+                    <div class="mt-4 pt-3 border-top">
+                        <h6 class="fw-bold mb-3">Alternative Payment Methods</h6>
+                        
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-university me-2"></i>Bank Transfer</h6>
+                                <p class="card-text text-muted small">
+                                    Transfer funds to our bank account. Requires manual confirmation.
+                                </p>
+                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#bankTransferModal">
+                                    View Bank Details
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-mobile-alt me-2"></i>Mobile Money</h6>
+                                <p class="card-text text-muted small">
+                                    Pay using mobile money services. Requires manual confirmation.
+                                </p>
+                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#mobileMoneyModal">
+                                    View Mobile Money Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Payment Security -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Payment Security</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img src="https://via.placeholder.com/150x60?text=Paystack" alt="Paystack" class="img-fluid">
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <h6 class="alert-heading"><i class="fas fa-shield-alt me-2"></i>Secure Payments</h6>
+                        <p class="mb-0">All payments are processed through Paystack's secure PCI DSS compliant platform.</p>
+                    </div>
+
+                    <h6 class="fw-bold mt-4">Supported Payment Methods</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Debit/Credit Cards</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Bank Transfer</li>
+                        <li><i class="fas fa-check text-success me-2"></i>USSD</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Mobile Money</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Bank Account</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Support Information -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Need Help?</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-headset fa-3x text-primary mb-3"></i>
+                        <h6>Payment Support</h6>
+                        <p class="text-muted">Having trouble with payment?</p>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'contact' %}?subject=Payment%20Support" class="btn btn-outline-primary">
+                                <i class="fas fa-envelope me-2"></i> Contact Support
+                            </a>
+                            <a href="tel:+2341234567890" class="btn btn-outline-secondary">
+                                <i class="fas fa-phone me-2"></i> Call: +233 540 571 756
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bank Transfer Modal -->
+<div class="modal fade" id="bankTransferModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bank Transfer Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    After making the transfer, please contact the finance office with your proof of payment.
+                </div>
+                
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Bank Name</th>
+                        <td>Excel Academy Trust Bank</td>
+                    </tr>
+                    <tr>
+                        <th>Account Name</th>
+                        <td>Excel International Academy</td>
+                    </tr>
+                    <tr>
+                        <th>Account Number</th>
+                        <td>1441002734361</td>
+                    </tr>
+                    <tr>
+                        <th>Sort Code</th>
+                        <td>000-000</td>
+                    </tr>
+                    <tr>
+                        <th>Reference</th>
+                        <td>{{ invoice.invoice_number }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Money Modal -->
+<div class="modal fade" id="mobileMoneyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mobile Money Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    After making the payment, please contact the finance office with your transaction ID.
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-mobile-alt fa-2x text-primary mb-2"></i>
+                                <h6>MTN Mobile Money</h6>
+                                <p class="mb-1"><strong>Number:</strong> 054 057 1756</p>
+                                <p class="mb-0"><strong>Reference:</strong> {{ invoice.invoice_number }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-mobile-alt fa-2x text-success mb-2"></i>
+                                <h6>AirtelTigo Money</h6>
+                                <p class="mb-1"><strong>Number:</strong> 026 147 0570</p>
+                                <p class="mb-0"><strong>Reference:</strong> {{ invoice.invoice_number }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<!-- Load Paystack Inline JS -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const paystackBtn = document.getElementById('paystack-btn');
+        const amountField = document.getElementById('amount');
+        
+        // Initialize Paystack payment
+        paystackBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const amount = parseFloat(amountField.value) || 0;
+            const maxAmount = parseFloat("{{ invoice.amount }}");
+            
+            // Validate amount
+            if (amount <= 0) {
+                alert('Please enter a valid amount');
+                amountField.focus();
+                return;
+            }
+            
+            if (amount > maxAmount) {
+                alert('Amount cannot exceed GHS' + maxAmount.toFixed(2));
+                amountField.value = maxAmount.toFixed(2);
+                return;
+            }
+            
+            // Show loading state
+            const originalText = paystackBtn.innerHTML;
+            paystackBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Initializing...';
+            paystackBtn.disabled = true;
+            
+            // Initialize Paystack payment
+            initializePaystackPayment(amount);
+        });
+        
+        function initializePaystackPayment(amount) {
+
+            // Generate a timestamp to make reference unique
+            const timestamp = Date.now();
+            const reference = '{{ invoice.paystack_reference|escapejs }}_' + timestamp;
+
+
+            const paystack = PaystackPop.setup({
+                 key: "pk_live_9f14175032b5a9f2a318a7d3096b2529dd8a63b1",
+                email: "kyleasante4@gmail.com",
+                amount: amount * 100,
+                currency: 'GHS',
+                ref: reference,
+                metadata: {
+                    custom_fields: [
+                        {
+                            display_name: "Invoice Number",
+                            variable_name: "invoice_number",
+                            value: '{{ invoice.invoice_number }}'
+                        },
+                        {
+                            display_name: "Student Name",
+                            variable_name: "student_name", 
+                            value: '{{ invoice.student.user.get_full_name }}'
+                        },
+                        {
+                            display_name: "Original Reference",
+                            variable_name: "original_reference", 
+                            value: '{{ invoice.paystack_reference|escapejs }}'
+                        }
+                    ]
+                },
+                callback: function(response) {
+                    // Payment was successful
+                    handlePaymentSuccess(response.reference);
+                },
+                onClose: function() {
+                    // Payment was cancelled
+                    paystackBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i> Pay Now with Paystack';
+                    paystackBtn.disabled = false;
+                    alert('Payment was cancelled');
+                }
+            });
+            
+            paystack.openIframe();
+        }
+        
+        function handlePaymentSuccess(reference) {
+            // Verify payment on server side
+            fetch('{% url "verify_paystack_payment" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    reference: reference,
+                    invoice_id: '{{ invoice.id }}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to success page
+                    window.location.href = '{% url "payment_success" %}?reference=' + reference;
+                } else {
+                    alert('Payment verification failed: ' + data.message);
+                    paystackBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i> Pay Now with Paystack';
+                    paystackBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during payment verification');
+                paystackBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i> Pay Now with Paystack';
+                paystackBtn.disabled = false;
+            });
+        }
+        
+        function updateAmount(input) {
+            const maxAmount = parseFloat("{{ invoice.amount }}");
+            let amount = parseFloat(input.value) || 0;
+            
+            if (amount > maxAmount) {
+                input.value = maxAmount.toFixed(2);
+                alert('Amount cannot exceed GHS' + maxAmount.toFixed(2));
+            } else if (amount < 1) {
+                input.value = '1.00';
+                alert('Minimum payment amount is GHS1.00');
+            }
+        }
+    });
+</script>
+
+<style>
+#paystack-btn {
+    background: linear-gradient(135deg, #00c853, #009624);
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+#paystack-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 200, 83, 0.3);
+}
+
+#paystack-btn:disabled {
+    opacity: 0.7;
+    transform: none;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
+{% endblock %}

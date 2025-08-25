@@ -1,0 +1,191 @@
+<!-- templates/accounts/user_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}User Details - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">User Details</h1>
+        <a href="{% url 'user_management' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Users
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- User Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">User Information</h6>
+                </div>
+                <div class="card-body text-center">
+                    <img class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;"
+                         src="{% if user_profile.profile_picture %}{{ user_profile.profile_picture.url }}{% else %}https://via.placeholder.com/120{% endif %}"
+                         alt="Profile picture">
+                    
+                    <h4>{{ user_profile.get_full_name|default:user_profile.username }}</h4>
+                    <p class="text-muted">@{{ user_profile.username }}</p>
+                    
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <span class="badge bg-{% if user_profile.user_type == 'admin' %}dark{% elif user_profile.user_type == 'teacher' %}warning{% elif user_profile.user_type == 'parent' %}info{% else %}secondary{% endif %}">
+                            {{ user_profile.get_user_type_display }}
+                        </span>
+                        <span class="badge bg-{% if user_profile.is_active %}success{% else %}danger{% endif %}">
+                            {% if user_profile.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="text-start">
+                        <p><strong>Email:</strong> {{ user_profile.email }}</p>
+                        {% if user_profile.phone %}
+                        <p><strong>Phone:</strong> {{ user_profile.phone }}</p>
+                        {% endif %}
+                        {% if user_profile.date_of_birth %}
+                        <p><strong>Date of Birth:</strong> {{ user_profile.date_of_birth }}</p>
+                        {% endif %}
+                        <p><strong>Joined:</strong> {{ user_profile.date_joined|date:"M d, Y" }}</p>
+                        <p><strong>Last Login:</strong> {{ user_profile.last_login|date:"M d, Y H:i"|default:"Never" }}</p>
+                    </div>
+                    
+                    {% if user_profile != request.user %}
+                    <hr>
+                    <a href="{% url 'toggle_user_status' user_profile.id %}" class="btn btn-{% if user_profile.is_active %}warning{% else %}success{% endif %} w-100">
+                        <i class="fas fa-{% if user_profile.is_active %}times{% else %}check{% endif %} me-2"></i>
+                        {% if user_profile.is_active %}Deactivate{% else %}Activate{% endif %} User
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Additional Information -->
+            {% if user_profile.user_type == 'parent' and profile_data %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Parent Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if profile_data.occupation %}
+                        <div class="col-md-6">
+                            <strong>Occupation:</strong> {{ profile_data.occupation }}
+                        </div>
+                        {% endif %}
+                        {% if profile_data.emergency_contact %}
+                        <div class="col-md-6">
+                            <strong>Emergency Contact:</strong> {{ profile_data.emergency_contact }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if profile_data.children %}
+                    <hr>
+                    <h6>Children</h6>
+                    <div class="list-group">
+                        {% for child in profile_data.children %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ child.user.get_full_name }}</h6>
+                                    <small class="text-muted">Admission #: {{ child.admission_number }}</small>
+                                </div>
+                                <span class="badge bg-info">Grade {{ child.current_class.name }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user_profile.user_type == 'teacher' and profile_data %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Teacher Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if profile_data.employee_id %}
+                        <div class="col-md-6">
+                            <strong>Employee ID:</strong> {{ profile_data.employee_id }}
+                        </div>
+                        {% endif %}
+                        {% if profile_data.hire_date %}
+                        <div class="col-md-6">
+                            <strong>Hire Date:</strong> {{ profile_data.hire_date }}
+                        </div>
+                        {% endif %}
+                        {% if profile_data.assigned_class %}
+                        <div class="col-md-6">
+                            <strong>Assigned Class:</strong> {{ profile_data.assigned_class.name }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if profile_data.subjects %}
+                    <hr>
+                    <h6>Subjects</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for subject in profile_data.subjects %}
+                        <span class="badge bg-primary">{{ subject.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user_profile.user_type == 'student' and profile_data %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Student Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if profile_data.admission_number %}
+                        <div class="col-md-6">
+                            <strong>Admission Number:</strong> {{ profile_data.admission_number }}
+                        </div>
+                        {% endif %}
+                        {% if profile_data.admission_date %}
+                        <div class="col-md-6">
+                            <strong>Admission Date:</strong> {{ profile_data.admission_date }}
+                        </div>
+                        {% endif %}
+                        {% if profile_data.current_class %}
+                        <div class="col-md-6">
+                            <strong>Current Class:</strong> {{ profile_data.current_class.name }}
+                        </div>
+                        {% endif %}
+                        {% if profile_data.parent %}
+                        <div class="col-md-6">
+                            <strong>Parent:</strong> {{ profile_data.parent.user.get_full_name }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- User Activity -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">User Activity</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">Activity tracking coming soon</h6>
+                        <p class="text-muted">User activity and statistics will be available in a future update.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

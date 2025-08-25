@@ -1,0 +1,198 @@
+<!-- templates/accounts/profile.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Excel Academy{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">My Profile</h1>
+    </div>
+
+    <div class="row">
+        <!-- User Information -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Personal Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 15rem;"
+                            src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}https://via.placeholder.com/150{% endif %}"
+                            alt="Profile picture">
+                    </div>
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Username</th>
+                            <td>{{ user.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Full Name</th>
+                            <td>{{ user.get_full_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>User Type</th>
+                            <td><span class="badge bg-primary">{{ user_type_display }}</span></td>
+                        </tr>
+                        {% if user.phone %}
+                        <tr>
+                            <th>Phone</th>
+                            <td>{{ user.phone }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if user.date_of_birth %}
+                        <tr>
+                            <th>Date of Birth</th>
+                            <td>{{ user.date_of_birth }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Profile Information -->
+        <div class="col-xl-8 col-lg-7">
+            {% if user.user_type == 'parent' and profile_data %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Parent Information</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        {% if profile_data.occupation %}
+                        <tr>
+                            <th>Occupation</th>
+                            <td>{{ profile_data.occupation }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if profile_data.emergency_contact %}
+                        <tr>
+                            <th>Emergency Contact</th>
+                            <td>{{ profile_data.emergency_contact }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    
+                    {% if profile_data.children %}
+                    <h6 class="font-weight-bold mt-4">Children</h6>
+                    <div class="list-group">
+                        {% for child in profile_data.children %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ child.user.get_full_name }}</h6>
+                                <small>Grade {{ child.current_class.name }}</small>
+                            </div>
+                            <p class="mb-1">Admission #: {{ child.admission_number }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user.user_type == 'teacher' and profile_data %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Teacher Information</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        {% if profile_data.employee_id %}
+                        <tr>
+                            <th>Employee ID</th>
+                            <td>{{ profile_data.employee_id }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if profile_data.hire_date %}
+                        <tr>
+                            <th>Hire Date</th>
+                            <td>{{ profile_data.hire_date }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if profile_data.assigned_class %}
+                        <tr>
+                            <th>Assigned Class</th>
+                            <td>{{ profile_data.assigned_class.name }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    
+                    {% if profile_data.subjects %}
+                    <h6 class="font-weight-bold mt-4">Subjects</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for subject in profile_data.subjects %}
+                        <span class="badge bg-info">{{ subject.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user.user_type == 'student' and profile_data %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Student Information</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        {% if profile_data.admission_number %}
+                        <tr>
+                            <th>Admission Number</th>
+                            <td>{{ profile_data.admission_number }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if profile_data.admission_date %}
+                        <tr>
+                            <th>Admission Date</th>
+                            <td>{{ profile_data.admission_date }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if profile_data.current_class %}
+                        <tr>
+                            <th>Current Class</th>
+                            <td>{{ profile_data.current_class.name }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if profile_data.parent %}
+                        <tr>
+                            <th>Parent/Guardian</th>
+                            <td>{{ profile_data.parent.user.get_full_name }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Account Actions -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Account Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="#" class="btn btn-outline-primary btn-block">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'password_reset' %}" class="btn btn-outline-warning btn-block">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

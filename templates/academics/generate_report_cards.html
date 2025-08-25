@@ -1,0 +1,239 @@
+<!-- templates/academics/generate_report_cards.html -->
+{% extends 'base.html' %}
+
+{% block title %}Generate Report Cards - Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Generate Report Cards</h1>
+        <div>
+            {% if assigned_class %}
+            <span class="badge bg-primary p-2">Class: {{ assigned_class.name }}{% if assigned_class.section %} {{ assigned_class.section }}{% endif %}</span>
+            {% else %}
+            <span class="badge bg-warning p-2">No class assigned</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not assigned_class %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Notice:</strong> You haven't been assigned to any class yet. Please contact the administration.
+    </div>
+    {% elif not students %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Info:</strong> There are no students in your assigned class.
+    </div>
+    {% else %}
+    <!-- Report Card Generation Form -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Generate Report Cards</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label for="term" class="form-label fw-bold">Term</label>
+                        <select class="form-select" id="term" name="term" required>
+                            <option value="" selected disabled>Select Term</option>
+                            <option value="First Term">First Term</option>
+                            <option value="Second Term">Second Term</option>
+                            <option value="Third Term">Third Term</option>
+                            <option value="Mid Term">Mid Term</option>
+                            <option value="Final Term">Final Term</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="academic_year" class="form-label fw-bold">Academic Year</label>
+                        <input type="text" class="form-control" id="academic_year" name="academic_year" 
+                               placeholder="e.g., 2023-2024" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Actions</label>
+                        <div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-file-pdf me-2"></i> Generate Report Cards
+                            </button>
+                            <button type="button" class="btn btn-info" onclick="previewReport()">
+                                <i class="fas fa-eye me-2"></i> Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student List -->
+                <h6 class="fw-bold mb-3">Students in Class</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="studentsTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Admission No.</th>
+                                <th>Grades Available</th>
+                                <th>Last Report</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.user.get_full_name }}</td>
+                                <td>{{ student.admission_number }}</td>
+                                <td>
+                                    <span class="badge bg-info">5 subjects</span>
+                                </td>
+                                <td>
+                                    {% if student.report_cards.all %}
+                                        {{ student.report_cards.first.term }} {{ student.report_cards.first.academic_year }}
+                                    {% else %}
+                                        <span class="text-muted">Never generated</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">Ready</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Card Preview -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Report Card Preview</h6>
+        </div>
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <img src="https://via.placeholder.com/800x400?text=Report+Card+Preview" 
+                     alt="Report Card Preview" class="img-fluid rounded border">
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Preview Note:</strong> This is a sample preview. Actual report cards will include:
+                <ul class="mb-0 mt-2">
+                    <li>Student grades for all subjects</li>
+                    <li>Overall percentage and grade</li>
+                    <li>Class position</li>
+                    <li>Teacher comments</li>
+                    <li>Principal's signature</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Card Statistics -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Students</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ students.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Ready to Generate</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ students.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Average Completion</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">85%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percent fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow mt-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'enter_grades' %}" class="btn btn-light btn-block text-center p-3">
+                        <i class="fas fa-graduation-cap fa-2x text-primary mb-2"></i>
+                        <h6 class="mb-0">Enter Grades</h6>
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'mark_attendance' %}" class="btn btn-light btn-block text-center p-3">
+                        <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                        <h6 class="mb-0">Mark Attendance</h6>
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="#" class="btn btn-light btn-block text-center p-3">
+                        <i class="fas fa-download fa-2x text-info mb-2"></i>
+                        <h6 class="mb-0">Export Grades</h6>
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'teacher_dashboard' %}" class="btn btn-light btn-block text-center p-3">
+                        <i class="fas fa-tachometer-alt fa-2x text-warning mb-2"></i>
+                        <h6 class="mb-0">Back to Dashboard</h6>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function previewReport() {
+        alert('Report card preview feature will be available soon!');
+    }
+    
+    // Initialize DataTable
+    $(document).ready(function() {
+        $('#studentsTable').DataTable({
+            pageLength: 10,
+            ordering: true,
+            order: [[0, 'asc']],
+            responsive: true
+        });
+    });
+</script>
+{% endblock %}
