@@ -32,6 +32,4 @@ services:
         fromSecret: EMAIL_HOST_PASSWORD
       - key: DEFAULT_FROM_EMAIL
         value: "mysmsapp@gmail.com"
-    healthCheckPath: /health/
-    healthCheckTimeout: 120
     autoDeploy: true
