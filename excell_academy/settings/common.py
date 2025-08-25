@@ -136,3 +136,14 @@ LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'home'
 
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://excell-academy.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://excell-academy.onrender.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]

@@ -17,6 +17,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 ALLOWED_HOSTS ='https://excell-academy.onrender.com'
 
+CSRF_TRUSTED_ORIGINS = ['https://excell-academy.onrender.com']
 
 EMAIL_BACKEND=os.environ['EMAIL_BACKEND']
 EMAIL_HOST=os.environ['EMAIL_hOST']
@@ -52,6 +53,17 @@ DATABASES = {
 }
 
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://excell-academy.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://excell-academy.onrender.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
 
 LOGGING = {
     'version': 1,
