@@ -10,11 +10,11 @@ django-crispy-forms = "*"
 crispy-bootstrap5 = "*"
 pillow = "*"
 paystackpy = "*"
-python-dotenv = "*"
 whitenoise = "*"
 psycopg2-binary = "*"
 dj-database-url = "*"
 waitress = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
