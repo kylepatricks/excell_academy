@@ -15,7 +15,7 @@ DEBUG = False
 SECRET_KEY = os.environ['SECRET_KEY']
 
 
-LOWED_HOSTS =[]
+LOWED_HOSTS ='https://excell-academy.onrender.com'
 
 
 EMAIL_BACKEND=os.environ['EMAIL_BACKEND']
