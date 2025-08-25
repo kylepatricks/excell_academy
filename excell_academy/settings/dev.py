@@ -12,9 +12,12 @@ DEBUG =False
 
 SECRET_KEY = 'django-insecure-tpwdbv98e^f-71-mp=uei40^967uy($k^jf=*3t)@h0+e-y=$7'
 
+
 ALLOWED_HOSTS =['https://excell-academy.onrender.com','excell-academy.onrender.com']
 
+
 CSRF_TRUSTED_ORIGINS = ['https://excell-academy.onrender.com']
+
 
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'

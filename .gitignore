@@ -25,8 +25,5 @@ TestResults.xml
 /static/
 /staticfiles/
 
-# Database
-*.sqlite3
-*.db
 
 /.env
