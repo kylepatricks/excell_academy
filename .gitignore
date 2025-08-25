@@ -20,3 +20,14 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+
+/media/
+/static/
+/staticfiles/
+
+# Database
+*.sqlite3
+*.db
+
+/.env
