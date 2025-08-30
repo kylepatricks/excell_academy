@@ -1,4 +1,5 @@
 # accounts/models.py
+import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -37,7 +38,6 @@ class Student(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='student_profile')
     parent = models.ForeignKey(Parent, on_delete=models.CASCADE, related_name='children')
     admission_number = models.CharField(max_length=20, unique=True)
-    admission_date = models.DateField()
     current_class = models.ForeignKey('academics.Class', on_delete=models.SET_NULL, null=True, related_name='students')
     
     def __str__(self):

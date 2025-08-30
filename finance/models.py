@@ -7,13 +7,15 @@ from django.utils import timezone
 
 class FeeStructure(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
-    class_level = models.ForeignKey('academics.Class', on_delete=models.CASCADE)
+    class_level = models.ForeignKey('academics.Class', on_delete=models.CASCADE, related_name='fee_structures')
     academic_year = models.CharField(max_length=9)
     term = models.CharField(max_length=20)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     due_date = models.DateField()
     late_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
+    active = models.BooleanField(default=True)
+
+
     class Meta:
         unique_together = ('class_level', 'academic_year', 'term')
     

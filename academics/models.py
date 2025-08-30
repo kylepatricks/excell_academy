@@ -1,4 +1,6 @@
 # academics/models.py
+import os
+import uuid
 from django.db import models
 
 class Class(models.Model):
@@ -73,9 +75,24 @@ class ReportCard(models.Model):
     remarks = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     generated_by = models.ForeignKey('accounts.Teacher', on_delete=models.SET_NULL, null=True)
-    
+    pdf_file = models.FileField(upload_to='report_cards/', null=True, blank=True)
+    is_finalized = models.BooleanField(default=False)
+
+
     class Meta:
         unique_together = ('student', 'term', 'academic_year')
     
     def __str__(self):
         return f"Report Card - {self.student} - {self.term} {self.academic_year}"
+    
+    def generate_filename(self):
+        """Generate a filename for the PDF report card"""
+        student_name = self.student.user.get_full_name().replace(' ', '_')
+        return f"report_card_{student_name}_{self.term}_{self.academic_year}_{uuid.uuid4().hex[:8]}.pdf"
+    
+    def delete(self, *args, **kwargs):
+        """Delete associated PDF file when report card is deleted"""
+        if self.pdf_file:
+            if os.path.isfile(self.pdf_file.path):
+                os.remove(self.pdf_file.path)
+        super().delete(*args, **kwargs)

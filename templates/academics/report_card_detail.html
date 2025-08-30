@@ -1,0 +1,232 @@
+<!-- templates/academics/report_card_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}Report Card Details - {{ user.get_user_type_display }} Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Report Card Details</h1>
+        <div>
+            <a href="{% url 'report_card_list' %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to List
+            </a>
+            {% if report_card.is_finalized %}
+            <a href="{% url 'download_report_card' report_card.id %}" class="btn btn-sm btn-success">
+                <i class="fas fa-download me-1"></i> Download PDF
+            </a>
+            <a href="{% url 'preview_report_card' report_card.id %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-file-pdf me-1"></i> Preview PDF
+            </a>
+            {% elif user.user_type == 'teacher' %}
+            <a href="{% url 'generate_report_card_pdf' report_card.id %}" class="btn btn-sm btn-warning">
+                <i class="fas fa-file-pdf me-1"></i> Generate PDF
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Report Card Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Report Card Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Student Name</th>
+                                    <td>{{ report_card.student.user.get_full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Admission Number</th>
+                                    <td>{{ report_card.student.admission_number }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Class</th>
+                                    <td>{{ report_card.student.current_class.name }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Term</th>
+                                    <td>{{ report_card.term }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Academic Year</th>
+                                    <td>{{ report_card.academic_year }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Overall Grade</th>
+                                    <td>
+                                        <span class="badge bg-{% if report_card.overall_grade == 'A+' or report_card.overall_grade == 'A' %}success{% elif report_card.overall_grade == 'B' %}info{% elif report_card.overall_grade == 'C' %}warning{% else %}danger{% endif %}">
+                                            {{ report_card.overall_grade }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Performance -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Academic Performance</h6>
+                </div>
+                <div class="card-body">
+                    {% if grades %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Score</th>
+                                    <th>Maximum</th>
+                                    <th>Percentage</th>
+                                    <th>Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grade in grades %}
+                                <tr>
+                                    <td>{{ grade.subject.name }}</td>
+                                    <td>{{ grade.score }}</td>
+                                    <td>{{ grade.maximum_score }}</td>
+                                    <td>{{ grade.percentage|floatformat:1 }}%</td>
+                                    <td>
+                                        <span class="badge bg-{% if grade.percentage >= 80 %}success{% elif grade.percentage >= 60 %}warning{% else %}danger{% endif %}">
+                                            {% if grade.percentage >= 90 %}A+
+                                            {% elif grade.percentage >= 80 %}A
+                                            {% elif grade.percentage >= 70 %}B
+                                            {% elif grade.percentage >= 60 %}C
+                                            {% elif grade.percentage >= 50 %}D
+                                            {% else %}F
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No grades recorded</h5>
+                        <p class="text-muted">No grades have been recorded for this term yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Summary Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Academic Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="display-4 text-{% if report_card.overall_grade == 'A+' or report_card.overall_grade == 'A' %}success{% elif report_card.overall_grade == 'B' %}info{% elif report_card.overall_grade == 'C' %}warning{% else %}danger{% endif %}">
+                            {{ report_card.overall_grade }}
+                        </div>
+                        <p class="text-muted">Overall Grade</p>
+                    </div>
+
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Class Position</th>
+                            <td>
+                                {% if report_card.class_position %}
+                                {{ report_card.class_position }}{% if report_card.class_position == 1 %}st{% elif report_card.class_position == 2 %}nd{% elif report_card.class_position == 3 %}rd{% else %}th{% endif %} out of {{ report_card.student.current_class.students.count }} students
+                                {% else %}Not ranked yet
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Total Subjects</th>
+                            <td>{{ grades.count }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                {% if report_card.is_finalized %}
+                                <span class="badge bg-success">Finalized</span>
+                                {% else %}
+                                <span class="badge bg-warning">Draft</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Generated By</th>
+                            <td>{{ report_card.generated_by.user.get_full_name|default:"System" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Generated On</th>
+                            <td>{{ report_card.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Teacher's Remarks -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Teacher's Remarks</h6>
+                </div>
+                <div class="card-body">
+                    {% if report_card.remarks %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-comment me-2"></i>
+                        {{ report_card.remarks }}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No remarks provided.</p>
+                    {% endif %}
+
+                    {% if user.user_type == 'teacher' and not report_card.is_finalized %}
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#remarksModal">
+                        <i class="fas fa-edit me-1"></i> Add Remarks
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remarks Modal -->
+{% if user.user_type == 'teacher' %}
+<div class="modal fade" id="remarksModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Remarks</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'update_report_card_remarks' report_card.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="4" placeholder="Enter your remarks here...">{{ report_card.remarks }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Remarks</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

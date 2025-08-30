@@ -1,6 +1,6 @@
 from .common import *
 from dotenv import load_dotenv
-
+from decouple import config
 
 load_dotenv()
 
@@ -8,13 +8,23 @@ load_dotenv()
 SECRET_KEY='616d612602596bdb203c129f354aa1fd48dff88a0a2ae2e703'
 
 
-DEBUG =False
+DEBUG = True
 
 SECRET_KEY = 'django-insecure-tpwdbv98e^f-71-mp=uei40^967uy($k^jf=*3t)@h0+e-y=$7'
 
 
-ALLOWED_HOSTS =['https://excell-academy.onrender.com','excell-academy.onrender.com']
+ALLOWED_HOSTS =['https://excell-academy.onrender.com','excell-academy.onrender.com','http://127.0.0.1']
 
+if DEBUG:
+   
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+else:
+    
+    RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if RENDER_EXTERNAL_HOSTNAME:
+        ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME, 'https://excell-academy.onrender.com']  
+    else:
+        ALLOWED_HOSTS = []
 
 CSRF_TRUSTED_ORIGINS = ['https://excell-academy.onrender.com']
 

@@ -1,0 +1,134 @@
+<!-- templates/academics/report_card_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}Report Cards - {{ user.get_user_type_display }} Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Report Cards</h1>
+        {% if user.user_type == 'teacher' %}
+        <a href="{% url 'generate_report_cards' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary">
+            <i class="fas fa-plus me-1"></i> Generate New
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Available Report Cards</h6>
+
+            {% if students %}
+            <div class="dropdown">
+                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="studentFilter" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-1"></i>
+                    {% if selected_student %}Filtered{% else %}Filter by Student{% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{% url 'report_card_list' %}">All Students</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% for student in students %}
+                    <li>
+                        <a class="dropdown-item {% if selected_student == student.id|stringformat:'s' %}active{% endif %}" 
+                        href="{% url 'report_card_list' %}?student={{ student.id }}">
+                            {{ student.user.get_full_name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="reportCardsTable">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Term</th>
+                            <th>Academic Year</th>
+                            <th>Overall Grade</th>
+                            <th>Class Position</th>
+                            <th>Generated On</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report_card in report_cards %}
+                        <tr>
+                            <td>{{ report_card.student.user.get_full_name }}</td>
+                            <td>{{ report_card.term }}</td>
+                            <td>{{ report_card.academic_year }}</td>
+                            <td>
+                                <span class="badge bg-{% if report_card.overall_grade == 'A+' or report_card.overall_grade == 'A' %}success{% elif report_card.overall_grade == 'B' %}info{% elif report_card.overall_grade == 'C' %}warning{% else %}danger{% endif %}">
+                                    {{ report_card.overall_grade }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if report_card.class_position %}
+                                {{ report_card.class_position }}{% if report_card.class_position == 1 %}st{% elif report_card.class_position == 2 %}nd{% elif report_card.class_position == 3 %}rd{% else %}th{% endif %}
+                                {% else %}-
+                                {% endif %}
+                            </td>
+                            <td>{{ report_card.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if report_card.is_finalized %}
+                                <span class="badge bg-success">Finalized</span>
+                                {% else %}
+                                <span class="badge bg-warning">Draft</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'report_card_detail' report_card.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                {% if report_card.is_finalized %}
+                                <a href="{% url 'download_report_card' report_card.id %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                                <a href="{% url 'preview_report_card' report_card.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-file-pdf"></i> Preview
+                                </a>
+                                {% elif user.user_type == 'teacher' %}
+                                <a href="{% url 'generate_report_card_pdf' report_card.id %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-file-pdf"></i> Generate PDF
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No report cards found</h5>
+                                <p class="text-muted">
+                                    {% if user.user_type == 'teacher' %}
+                                    <a href="{% url 'generate_report_cards' %}">Generate report cards</a> for your class.
+                                    {% else %}
+                                    No report cards have been generated yet.
+                                    {% endif %}
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#reportCardsTable').DataTable({
+            pageLength: 10,
+            ordering: true,
+            order: [[5, 'desc']], // Sort by generation date
+            responsive: true
+        });
+    });
+</script>
+{% endblock %}

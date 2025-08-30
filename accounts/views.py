@@ -123,7 +123,8 @@ def teacher_dashboard(request):
     
     # Get students in assigned class
     students = assigned_class.students.all() if assigned_class else []
-    
+
+
     # Get today's attendance
     from django.utils import timezone
     today = timezone.now().date()
@@ -135,6 +136,7 @@ def teacher_dashboard(request):
     # Count present students
     present_count = attendance_today.filter(status='present').count() if assigned_class else 0
     
+
     context = {
         'teacher': teacher,
         'assigned_class': assigned_class,
@@ -145,6 +147,7 @@ def teacher_dashboard(request):
         'subjects': teacher.subjects.all(),
     }
     return render(request, 'accounts/teacher_dashboard.html', context)
+
 
 
 @login_required

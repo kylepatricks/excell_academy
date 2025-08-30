@@ -1,0 +1,216 @@
+<!-- templates/academics/report_card_pdf.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Report Card - {{ report_card.student.user.get_full_name }}</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 1in;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .school-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .report-title {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        .student-info {
+            margin: 20px 0;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .info-table td {
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        .info-table td:first-child {
+            font-weight: bold;
+            width: 30%;
+            background-color: #f8f9fa;
+        }
+        .grades-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .grades-table th, .grades-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .grades-table th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        .grades-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .summary {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+        .signature-area {
+            margin-top: 40px;
+        }
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 200px;
+            margin: 40px 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="school-name">EXCEL INTERNATIONAL ACADEMY</div>
+        <div class="report-title">ACADEMIC REPORT CARD</div>
+        <div>{{ report_card.term }} TERM - {{ report_card.academic_year }}</div>
+    </div>
+
+    <div class="student-info">
+        <table class="info-table">
+            <tr>
+                <td>Student Name</td>
+                <td>{{ report_card.student.user.get_full_name }}</td>
+            </tr>
+            <tr>
+                <td>Admission Number</td>
+                <td>{{ report_card.student.admission_number }}</td>
+            </tr>
+            <tr>
+                <td>Class</td>
+                <td>{{ report_card.student.current_class.name }}</td>
+            </tr>
+            <tr>
+                <td>Term</td>
+                <td>{{ report_card.term }}</td>
+            </tr>
+            <tr>
+                <td>Academic Year</td>
+                <td>{{ report_card.academic_year }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <h3>ACADEMIC PERFORMANCE</h3>
+    <table class="grades-table">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Score</th>
+                <th>Maximum</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grade in grades %}
+            <tr>
+                <td>{{ grade.subject.name }}</td>
+                <td>{{ grade.score }}</td>
+                <td>{{ grade.maximum_score }}</td>
+                <td>{{ grade.percentage|floatformat:1 }}%</td>
+                <td>
+                    {% if grade.percentage >= 90 %}A+
+                    {% elif grade.percentage >= 80 %}A
+                    {% elif grade.percentage >= 70 %}B
+                    {% elif grade.percentage >= 60 %}C
+                    {% elif grade.percentage >= 50 %}D
+                    {% else %}F
+                    {% endif %}
+                </td>
+                <td>
+                    {% if grade.percentage >= 80 %}Excellent
+                    {% elif grade.percentage >= 70 %}Very Good
+                    {% elif grade.percentage >= 60 %}Good
+                    {% elif grade.percentage >= 50 %}Satisfactory
+                    {% else %}Needs Improvement
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="summary">
+        <h3>ACADEMIC SUMMARY</h3>
+        <table class="info-table">
+            <tr>
+                <td>Total Subjects</td>
+                <td>{{ total_subjects }}</td>
+            </tr>
+            <tr>
+                <td>Total Score</td>
+                <td>{{ total_score }}/{{ total_max_score }}</td>
+            </tr>
+            <tr>
+                <td>Average Percentage</td>
+                <td>{{ average_percentage|floatformat:2 }}%</td>
+            </tr>
+            <tr>
+                <td>Overall Grade</td>
+                <td>
+                    {% if report_card.class_position %}
+                    {{ report_card.class_position }}{% if report_card.class_position == 1 %}st{% elif report_card.class_position == 2 %}nd{% elif report_card.class_position == 3 %}rd{% else %}th{% endif %} 
+                        out of {{ report_card.student.current_class.students.count }} students
+                    {% else %}
+                        Position not yet determined
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Class Position</td>
+                <td>{{ report_card.class_position }}{% if report_card.class_position == 1 %}st{% elif report_card.class_position == 2 %}nd{% elif report_card.class_position == 3 %}rd{% else %}th{% endif %} out of {{ report_card.student.current_class.students.count }} students</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="remarks">
+        <h3>TEACHER'S REMARKS</h3>
+        <p>{{ report_card.remarks|default:"No remarks provided." }}</p>
+    </div>
+
+    <div class="signature-area">
+        <div style="float: left; width: 45%;">
+            <div class="signature-line"></div>
+            <div>Class Teacher's Signature</div>
+        </div>
+        <div style="float: right; width: 45%;">
+            <div class="signature-line"></div>
+            <div>Principal's Signature</div>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+
+    <div class="footer">
+        <p>Generated on: {{ generation_date|date:"F d, Y" }}</p>
+        <p>Excel International Academy - Quality Education for Future Leaders</p>
+        <p>www.excelacademy.edu | info@excelacademy.edu | +234 XXX XXX XXXX</p>
+    </div>
+</body>
+</html>

@@ -6,6 +6,12 @@ from django.utils import timezone
 from django.contrib import messages
 from .models import Class, Attendance, Grade, ReportCard, Subject
 from accounts.models import Student, Teacher
+from xhtml2pdf import pisa
+from io import BytesIO
+import os
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.conf import settings
 
 @login_required
 @user_passes_test(lambda u: u.user_type == 'teacher')
@@ -161,6 +167,8 @@ def enter_grades(request):
     }
     return render(request, 'academics/enter_grades.html', context)
 
+
+
 @login_required
 @user_passes_test(lambda u: u.user_type == 'teacher')
 def generate_report_cards(request):
@@ -177,7 +185,18 @@ def generate_report_cards(request):
         term = request.POST.get('term')
         academic_year = request.POST.get('academic_year')
         
+        if not term or not academic_year:
+            messages.error(request, 'Please select both term and academic year.')
+            return redirect('generate_report_cards')
+        
+        generated_count = 0
         for student in students:
+            # Check if report card already exists
+            if ReportCard.objects.filter(student=student, term=term, academic_year=academic_year).exists():
+                continue
+            
+            student_performances = []
+
             # Calculate overall performance
             grades = Grade.objects.filter(
                 student=student,
@@ -189,57 +208,59 @@ def generate_report_cards(request):
                 total_score = sum(grade.score for grade in grades)
                 total_max = sum(grade.maximum_score for grade in grades)
                 percentage = (total_score / total_max) * 100 if total_max > 0 else 0
+
+                student_performances.append({
+                    'student': student,
+                    'percentage': percentage,
+                    'total_score': total_score,
+                    'total_max': total_max
+                })
+            
+            student_performances.sort(key=lambda x: x['percentage'], reverse=True)
+        
+        # Assign class positions
+        generated_count = 0
+        current_position = 1
+        previous_percentage = None
+        skip_count = 0
+        
+        for i, performance in enumerate(student_performances):
+            # Handle ties (students with same percentage get same position)
+            if (previous_percentage is not None and 
+                abs(performance['percentage'] - previous_percentage) < 0.1):  # Consider same if within 0.1%
+                skip_count += 1
+            else:
+                current_position += skip_count
+                skip_count = 1
+
                 
                 # Determine overall grade
                 if percentage >= 90:
-                    overall_grade = 'A'
+                    overall_grade = 'A+'
                 elif percentage >= 80:
-                    overall_grade = 'B'
+                    overall_grade = 'A'
                 elif percentage >= 70:
-                    overall_grade = 'C'
+                    overall_grade = 'B'
                 elif percentage >= 60:
+                    overall_grade = 'C'
+                elif percentage >= 50:
                     overall_grade = 'D'
                 else:
                     overall_grade = 'F'
                 
-                # Calculate class position (simplified)
-                all_students_grades = []
-                for s in students:
-                    s_grades = Grade.objects.filter(
-                        student=s,
-                        term=term,
-                        academic_year=academic_year
-                    )
-                    if s_grades.exists():
-                        s_total = sum(g.score for g in s_grades)
-                        s_max = sum(g.maximum_score for g in s_grades)
-                        s_percentage = (s_total / s_max) * 100 if s_max > 0 else 0
-                        all_students_grades.append((s.id, s_percentage))
-                
-                # Sort by percentage descending
-                all_students_grades.sort(key=lambda x: x[1], reverse=True)
-                
-                # Find position
-                position = None
-                for idx, (s_id, perc) in enumerate(all_students_grades):
-                    if s_id == student.id:
-                        position = idx + 1
-                        break
-                
-                # Create or update report card
-                ReportCard.objects.update_or_create(
+                # Create report card (without PDF initially)
+                ReportCard.objects.create(
                     student=student,
                     term=term,
                     academic_year=academic_year,
-                    defaults={
-                        'overall_grade': overall_grade,
-                        'class_position': position,
-                        'generated_by': teacher,
-                        'remarks': f'Generated on {timezone.now().strftime("%Y-%m-%d")}'
-                    }
+                    overall_grade=overall_grade,
+                    class_position=None,  # Will be calculated later
+                    remarks=f"Automatically generated on {timezone.now().date()}",
+                    generated_by=teacher
                 )
+                generated_count += 1
         
-        messages.success(request, f'Report cards generated successfully for {term} {academic_year}')
+        messages.success(request, f'Generated {generated_count} report cards. You can now generate PDFs for individual students.')
         return redirect('generate_report_cards')
     
     context = {
@@ -247,3 +268,321 @@ def generate_report_cards(request):
         'students': students,
     }
     return render(request, 'academics/generate_report_cards.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.user_type == 'teacher')
+def generate_report_card_pdf(request, report_card_id):
+    """Generate PDF for a report card"""
+    report_card = get_object_or_404(ReportCard, id=report_card_id)
+    
+    # Check if teacher has permission
+    if (request.user.user_type != 'teacher' or request.user.teacher != report_card.generated_by) and request.user.user_type != 'admin':
+        messages.error(request, 'You do not have permission to generate this report card.')
+        return redirect('teacher_dashboard')
+    
+    # Get all grades for this report card period
+    grades = Grade.objects.filter(
+        student=report_card.student,
+        term=report_card.term,
+        academic_year=report_card.academic_year
+    )
+    
+    if not grades.exists():
+        messages.error(request, 'No grades found for this report card period.')
+        return redirect('report_card_detail', report_card_id=report_card.id)
+    
+    # Calculate statistics
+    total_subjects = grades.count()
+    total_score = sum(grade.score for grade in grades)
+    total_max_score = sum(grade.maximum_score for grade in grades)
+    average_percentage = (total_score / total_max_score * 100) if total_max_score > 0 else 0
+    
+    context = {
+        'report_card': report_card,
+        'grades': grades,
+        'total_subjects': total_subjects,
+        'total_score': total_score,
+        'total_max_score': total_max_score,
+        'average_percentage': average_percentage,
+        'school_name': 'Excel International Academy',
+        'generation_date': timezone.now().date(),
+    }
+    
+    # Render HTML template
+    template = get_template('academics/report_card_pdf.html')
+    html = template.render(context)
+    
+    # Create PDF
+    result = BytesIO()
+    pdf = pisa.CreatePDF(html, dest=result)
+    
+    if not pdf.err:
+        # Save PDF to file
+        filename = report_card.generate_filename()
+        pdf_path = os.path.join(settings.MEDIA_ROOT, 'report_cards', filename)
+        
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
+        
+        with open(pdf_path, 'wb') as f:
+            f.write(result.getvalue())
+        
+        # Update report card with PDF file
+        report_card.pdf_file = f'report_cards/{filename}'
+        report_card.is_finalized = True
+        report_card.save()
+        
+        messages.success(request, 'Report card PDF generated successfully!')
+        
+        # Return to preview after generation
+        return preview_report_card(request, report_card_id)
+    
+    messages.error(request, 'Error generating PDF report card.')
+    return redirect('report_card_detail', report_card_id=report_card.id)
+
+# academics/views.py
+@login_required
+def download_report_card(request, report_card_id):
+    """Download report card PDF"""
+    report_card = get_object_or_404(ReportCard, id=report_card_id)
+    
+    # Check permission (parent, student, teacher, or admin)
+    if (request.user != report_card.student.user and 
+        request.user != report_card.student.parent.user and
+        (request.user.user_type != 'teacher' or request.user.teacher != report_card.generated_by) and
+        request.user.user_type != 'admin'):
+        messages.error(request, 'You do not have permission to download this report card.')
+        return redirect('dashboard')
+    
+    if not report_card.pdf_file:
+        # If PDF doesn't exist but report card is finalized, try to generate it
+        if report_card.is_finalized:
+            try:
+                # Generate PDF on the fly
+                from .utils import generate_pdf_for_report_card
+                generate_pdf_for_report_card(report_card)
+                report_card.refresh_from_db()
+            except Exception as e:
+                messages.error(request, 'Report card PDF not generated yet. Please contact administrator.')
+                return redirect('report_card_detail', report_card_id=report_card.id)
+        else:
+            messages.error(request, 'Report card not finalized yet. Please wait for administration to finalize it.')
+            return redirect('report_card_detail', report_card_id=report_card.id)
+    
+    # Check if file actually exists on filesystem
+    if not report_card.pdf_file or not os.path.exists(report_card.pdf_file.path):
+        messages.error(request, 'PDF file not found. Please contact administrator.')
+        return redirect('report_card_detail', report_card_id=report_card.id)
+    
+    # Serve the PDF file
+    with open(report_card.pdf_file.path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/pdf')
+    
+    filename = f"report_card_{report_card.student.user.get_full_name()}_{report_card.term}_{report_card.academic_year}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+@login_required
+def preview_report_card(request, report_card_id):
+    """Preview report card in browser"""
+    report_card = get_object_or_404(ReportCard, id=report_card_id)
+    
+    # Check permission
+    if (request.user != report_card.student.user and 
+        request.user != report_card.student.parent.user and
+        (request.user.user_type != 'teacher' or request.user.teacher != report_card.generated_by) and
+        request.user.user_type != 'admin'):
+        messages.error(request, 'You do not have permission to view this report card.')
+        return redirect('dashboard')
+    
+    if not report_card.pdf_file:
+        # If PDF hasn't been generated yet, generate it first
+        return generate_report_card_pdf(request, report_card_id)
+    
+    # Serve the PDF for preview
+    try:
+        with open(report_card.pdf_file.path, 'rb') as pdf:
+            response = HttpResponse(pdf.read(), content_type='application/pdf')
+            response['Content-Disposition'] = 'inline; filename="preview.pdf"'
+            return response
+    except FileNotFoundError:
+        # If file doesn't exist, regenerate it
+        return generate_report_card_pdf(request, report_card_id)
+
+# academics/views.py
+@login_required
+def report_card_list(request):
+    """List all report cards for the current user (parent or student)"""
+    student_id = request.GET.get('student')
+    
+    if request.user.user_type == 'parent':
+        report_cards = ReportCard.objects.filter(student__parent__user=request.user)
+        if student_id:
+            report_cards = report_cards.filter(student_id=student_id)
+    elif request.user.user_type == 'student':
+        report_cards = ReportCard.objects.filter(student__user=request.user)
+    elif request.user.user_type == 'teacher':
+        report_cards = ReportCard.objects.filter(generated_by=request.user.teacher)
+        if student_id:
+            report_cards = report_cards.filter(student_id=student_id)
+    else:  # admin
+        report_cards = ReportCard.objects.all()
+        if student_id:
+            report_cards = report_cards.filter(student_id=student_id)
+    
+    report_cards = report_cards.order_by('-academic_year', '-term')
+    
+    # Get students for filter dropdown (for parents and teachers)
+    students = []
+    if request.user.user_type == 'parent':
+        students = Student.objects.filter(parent__user=request.user)
+    elif request.user.user_type == 'teacher':
+        students = Student.objects.filter(current_class=request.user.teacher.assigned_class)
+    
+    context = {
+        'report_cards': report_cards,
+        'students': students,
+        'selected_student': student_id,
+    }
+    return render(request, 'academics/report_card_list.html', context)
+
+@login_required
+def report_card_detail(request, report_card_id):
+    """View report card details"""
+    report_card = get_object_or_404(ReportCard, id=report_card_id)
+    
+    # Check permission - FIXED
+    has_permission = False
+    
+    if request.user.user_type == 'parent':
+        has_permission = (report_card.student.parent.user == request.user)
+    elif request.user.user_type == 'student':
+        has_permission = (report_card.student.user == request.user)
+    elif request.user.user_type == 'teacher':
+        has_permission = (request.user.teacher == report_card.generated_by or 
+                         request.user.teacher == report_card.student.current_class.class_teacher)
+    elif request.user.user_type == 'admin':
+        has_permission = True
+    
+    if not has_permission:
+        messages.error(request, 'You do not have permission to view this report card.')
+        return redirect('dashboard')
+    
+    # Get grades for this report card
+    grades = Grade.objects.filter(
+        student=report_card.student,
+        term=report_card.term,
+        academic_year=report_card.academic_year
+    )
+    
+    context = {
+        'report_card': report_card,
+        'grades': grades,
+    }
+    return render(request, 'academics/report_card_detail.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.user_type == 'teacher')
+def update_report_card_remarks(request, report_card_id):
+    """Update report card remarks"""
+    report_card = get_object_or_404(ReportCard, id=report_card_id)
+    
+    # Check if teacher has permission
+    if request.user.teacher != report_card.generated_by:
+        messages.error(request, 'You can only update remarks for report cards you generated.')
+        return redirect('report_card_detail', report_card_id=report_card.id)
+    
+    if request.method == 'POST':
+        remarks = request.POST.get('remarks', '')
+        report_card.remarks = remarks
+        report_card.save()
+        messages.success(request, 'Remarks updated successfully.')
+    
+    return redirect('report_card_detail', report_card_id=report_card.id)
+
+@login_required
+@user_passes_test(lambda u: u.user_type == 'admin')
+def admin_generate_report_card_pdf(request, report_card_id):
+    """Admin endpoint to generate PDF for finalized report cards"""
+    report_card = get_object_or_404(ReportCard, id=report_card_id)
+    
+    if not report_card.is_finalized:
+        messages.error(request, 'Report card must be finalized before generating PDF.')
+        return redirect('admin:academics_reportcard_changelist')
+    
+    # Generate PDF
+    return generate_report_card_pdf(request, report_card_id)
+
+# Update the existing function to handle both teacher and admin generation
+def generate_report_card_pdf(request, report_card_id):
+    """Generate PDF for a report card (internal function)"""
+    report_card = get_object_or_404(ReportCard, id=report_card_id)
+    
+    # Check if teacher has permission or if admin is forcing generation
+    is_admin = request.user.user_type == 'admin'
+    is_teacher_owner = request.user.user_type == 'teacher' and request.user.teacher == report_card.generated_by
+    
+    if not (is_admin or is_teacher_owner):
+        messages.error(request, 'You do not have permission to generate this report card.')
+        return redirect('dashboard')
+    
+    # Get all grades for this report card period
+    grades = Grade.objects.filter(
+        student=report_card.student,
+        term=report_card.term,
+        academic_year=report_card.academic_year
+    )
+    
+    # Calculate statistics
+    total_subjects = grades.count()
+    total_score = sum(grade.score for grade in grades)
+    total_max_score = sum(grade.maximum_score for grade in grades)
+    average_percentage = (total_score / total_max_score * 100) if total_max_score > 0 else 0
+    
+    context = {
+        'report_card': report_card,
+        'grades': grades,
+        'total_subjects': total_subjects,
+        'total_score': total_score,
+        'total_max_score': total_max_score,
+        'average_percentage': average_percentage,
+        'school_name': 'Excel International Academy',
+        'generation_date': timezone.now().date(),
+    }
+    
+    # Render HTML template
+    template = get_template('academics/report_card_pdf.html')
+    html = template.render(context)
+    
+    # Create PDF
+    result = BytesIO()
+    pdf = pisa.CreatePDF(html, dest=result)
+    
+    if not pdf.err:
+        # Save PDF to file
+        filename = report_card.generate_filename()
+        pdf_path = os.path.join(settings.MEDIA_ROOT, 'report_cards', filename)
+        
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
+        
+        with open(pdf_path, 'wb') as f:
+            f.write(result.getvalue())
+        
+        # Update report card with PDF file
+        report_card.pdf_file = f'report_cards/{filename}'
+        report_card.save()
+        
+        messages.success(request, 'Report card PDF generated successfully!')
+        
+        if is_admin:
+            return redirect('admin:academics_reportcard_changelist')
+        else:
+            return redirect('report_card_detail', report_card_id=report_card.id)
+    
+    messages.error(request, 'Error generating PDF report card.')
+    
+    if is_admin:
+        return redirect('admin:academics_reportcard_changelist')
+    else:
+        return redirect('generate_report_cards')
