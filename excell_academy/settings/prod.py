@@ -15,7 +15,7 @@ DEBUG = False
 SECRET_KEY = os.environ['SECRET_KEY']
 
 
-ALLOWED_HOSTS =['https://excell-academy.onrender.com','http://127.0.0.1']
+ALLOWED_HOSTS =['https://excell-academy.onrender.com']
 
 CSRF_TRUSTED_ORIGINS = ['https://excell-academy.onrender.com']
 
