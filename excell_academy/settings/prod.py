@@ -109,23 +109,10 @@ LOGGING = {
 
 EXCEL_ACADEMY = {
     'ENVIRONMENT': ENVIRONMENT,
-    'SUPPORT_EMAIL': 'support@excelacademy.edu',
-    'ADMIN_EMAIL': 'admin@excelacademy.edu',
+    'SUPPORT_EMAIL': 'kyleasante4@gmail.com',
+    'ADMIN_EMAIL': 'kyleasante4@gmail.com',
     'PAYMENT_TIMEOUT': 30,  # minutes
 }
 
-HEALTH_CHECK = {
-    'DATABASE': 'excell_academy.db_health_check',
-}
-
-def db_health_check():
-    """Custom database health check"""
-    from django.db import connection
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")
-            return True
-    except Exception:
-        return False
 
 logger.info(f"Excel Academy production settings loaded for {ENVIRONMENT} environment")
