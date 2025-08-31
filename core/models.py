@@ -39,13 +39,25 @@ class Application(models.Model):
 
 
 class ContactMessage(models.Model):
+
+    URGENCY_CHOICES = (
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+    )
+
     name = models.CharField(max_length=100)
     email = models.EmailField()
     subject = models.CharField(max_length=200)
     message = models.TextField()
+    urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES, default='medium')
+    newsletter_subscription = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
     responded = models.BooleanField(default=False)
+    response_notes = models.TextField(blank=True)
+    class Meta:
+        ordering = ['-submitted_at']
     
     def __str__(self):
         return f"Message from {self.name}: {self.subject}"

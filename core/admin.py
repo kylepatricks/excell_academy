@@ -13,7 +13,21 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'subject', 'submitted_at', 'is_read', 'responded')
-    list_filter = ('is_read', 'responded', 'submitted_at')
-    search_fields = ('name', 'email', 'subject')
+    list_display = ('name', 'email', 'subject', 'urgency', 'submitted_at', 'is_read', 'responded')
+    list_filter = ('urgency', 'is_read', 'responded', 'submitted_at', 'newsletter_subscription')
+    search_fields = ('name', 'email', 'subject', 'message')
     readonly_fields = ('submitted_at',)
+    list_editable = ('is_read', 'responded')
+    
+    fieldsets = (
+        ('Message Details', {
+            'fields': ('name', 'email', 'subject', 'message', 'urgency', 'newsletter_subscription')
+        }),
+        ('Response', {
+            'fields': ('is_read', 'responded', 'response_notes')
+        }),
+        ('Metadata', {
+            'fields': ('submitted_at',),
+            'classes': ('collapse',)
+        }),
+    )

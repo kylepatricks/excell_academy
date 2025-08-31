@@ -76,13 +76,17 @@ def contact(request):
         email = request.POST.get('email')
         subject = request.POST.get('subject')
         message = request.POST.get('message')
+        urgency = request.POST.get('urgency', 'medium')
+        newsletter = request.POST.get('newsletter', False)
         
         # Save contact message
         contact_message = ContactMessage.objects.create(
             name=name,
             email=email,
             subject=subject,
-            message=message
+            message=message,
+            urgency=urgency,
+            newsletter_subscription=bool(newsletter)
         )
         
         # Send confirmation email
