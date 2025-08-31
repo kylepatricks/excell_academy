@@ -367,7 +367,6 @@ def user_detail(request, user_id):
             student_profile = Student.objects.get(user=user)
             profile_data = {
                 'admission_number': student_profile.admission_number,
-                'admission_date': student_profile.admission_date,
                 'current_class': student_profile.current_class,
                 'parent': student_profile.parent
             }
