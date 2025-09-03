@@ -44,7 +44,19 @@ PAYSTACK_SECRET_KEY=os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY=os.getenv('PAYSTACK_PUBLIC_KEY')
 PAYSTACK_BASE_URL =os.getenv('PAYSTACK_BASE_URL')
 
-DATABASES = config('DATABASE_URL', default=None)
+database_url = config('DATABASE_URL', default=None)
+
+if database_url:
+    DATABASES = {
+        'default': dj_database_url.parse(database_url)
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
