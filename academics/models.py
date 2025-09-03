@@ -96,3 +96,19 @@ class ReportCard(models.Model):
             if os.path.isfile(self.pdf_file.path):
                 os.remove(self.pdf_file.path)
         super().delete(*args, **kwargs)
+
+class Promotion(models.Model):
+    student = models.ForeignKey('accounts.Student', on_delete=models.CASCADE, related_name='promotions')
+    from_class = models.ForeignKey('Class', on_delete=models.CASCADE, related_name='promotions_from')
+    to_class = models.ForeignKey('Class', on_delete=models.CASCADE, related_name='promotions_to')
+    academic_year = models.CharField(max_length=9)
+    promoted_at = models.DateTimeField(auto_now_add=True)
+    average_score = models.DecimalField(max_digits=5, decimal_places=2)
+    promoted_by = models.ForeignKey('accounts.Teacher', on_delete=models.SET_NULL, null=True, blank=True)
+    notes = models.TextField(blank=True)
+    
+    class Meta:
+        unique_together = ('student', 'academic_year')
+    
+    def __str__(self):
+        return f"{self.student} promoted from {self.from_class} to {self.to_class} ({self.academic_year})"

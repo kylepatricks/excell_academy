@@ -1,0 +1,114 @@
+<!-- templates/academics/promotion_dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Student Promotions - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Student Promotion Management</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <!-- Promotion Form -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Check Promotion Eligibility</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'check_promotion_eligibility' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="academic_year" class="form-label">Academic Year</label>
+                            <select class="form-select" id="academic_year" name="academic_year" required>
+                                <option value="">Select Academic Year</option>
+                                {% for year in academic_years %}
+                                <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="class_id" class="form-label">Class</label>
+                            <select class="form-select" id="class_id" name="class_id" required>
+                                <option value="">Select Class</option>
+                                {% for class in classes %}
+                                <option value="{{ class.id }}">{{ class.name }} {{ class.section }} ({{ class.academic_year }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="min_average" class="form-label">Minimum Average Score (%)</label>
+                            <input type="number" class="form-control" id="min_average" name="min_average" 
+                                   value="70.0" min="0" max="100" step="0.1" required>
+                            <div class="form-text">Students with average score above this value will be promoted</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i> Check Eligibility
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <!-- Promotion Guidelines -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Promotion Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Promotion Rules</h6>
+                        <ul class="mb-0">
+                            <li>Students must achieve minimum average score across all subjects</li>
+                            <li>Average is calculated from all terms in the academic year</li>
+                            <li>Promotion is automatic for eligible students</li>
+                            <li>Manual overrides are available for special cases</li>
+                        </ul>
+                    </div>
+
+                    <h6 class="fw-bold mt-4">Automatic Promotion Schedule</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Grade Level</th>
+                                    <th>Minimum Average</th>
+                                    <th>Next Class</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Grade 1 - 5</td>
+                                    <td>70%</td>
+                                    <td>Next grade level</td>
+                                </tr>
+                                <tr>
+                                    <td>Grade 6 - 8</td>
+                                    <td>65%</td>
+                                    <td>Next grade level</td>
+                                </tr>
+                                <tr>
+                                    <td>Grade 9 - 12</td>
+                                    <td>60%</td>
+                                    <td>Next grade level</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-warning mt-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> Promotions are irreversible. Please verify all data before proceeding.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

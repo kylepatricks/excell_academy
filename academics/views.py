@@ -1,10 +1,11 @@
 # academics/views.py
+import json
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.utils import timezone
 from django.contrib import messages
-from .models import Class, Attendance, Grade, ReportCard, Subject
+from .models import Class, Attendance, Grade, Promotion, ReportCard, Subject
 from accounts.models import Student, Teacher
 from xhtml2pdf import pisa
 from io import BytesIO
@@ -12,6 +13,8 @@ import os
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.conf import settings
+from django.db.models import Avg
+
 
 @login_required
 @user_passes_test(lambda u: u.user_type == 'teacher')
@@ -586,3 +589,177 @@ def generate_report_card_pdf(request, report_card_id):
         return redirect('admin:academics_reportcard_changelist')
     else:
         return redirect('generate_report_cards')
+    
+
+
+def is_admin_or_principal(user):
+    return user.user_type in ['admin', 'teacher']  # Adjust based on your roles
+
+@login_required
+@user_passes_test(is_admin_or_principal)
+def promotion_dashboard(request):
+    """Dashboard for managing student promotions"""
+    academic_years = Grade.objects.values_list('academic_year', flat=True).distinct()
+    classes = Class.objects.all()
+    
+    context = {
+        'academic_years': sorted(academic_years, reverse=True),
+        'classes': classes,
+    }
+    return render(request, 'academics/promotion_dashboard.html', context)
+
+@login_required
+@user_passes_test(is_admin_or_principal)
+def check_promotion_eligibility(request):
+    """Check which students are eligible for promotion"""
+    if request.method == 'POST':
+        academic_year = request.POST.get('academic_year')
+        class_id = request.POST.get('class_id')
+        min_average = float(request.POST.get('min_average', 70.0))
+        
+        try:
+            class_obj = Class.objects.get(id=class_id)
+            students = Student.objects.filter(current_class=class_obj)
+            
+            results = []
+            for student in students:
+                # Calculate average score
+                grades = Grade.objects.filter(
+                    student=student,
+                    academic_year=academic_year
+                )
+                
+                if grades.exists():
+                    average_score = grades.aggregate(avg_score=Avg('score'))['avg_score'] or 0
+                    average_percentage = (average_score / 100) * 100
+                    eligible = average_percentage >= min_average
+                    
+                    results.append({
+                        'student': student,
+                        'average_score': average_percentage,
+                        'eligible': eligible,
+                        'grades_count': grades.count()
+                    })
+            
+            context = {
+                'class_obj': class_obj,
+                'academic_year': academic_year,
+                'min_average': min_average,
+                'results': sorted(results, key=lambda x: x['average_score'], reverse=True),
+                'total_students': len(results),
+                'eligible_count': sum(1 for r in results if r['eligible']),
+            }
+            
+            return render(request, 'academics/promotion_results.html', context)
+            
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+            return redirect('promotion_dashboard')
+    
+    return redirect('promotion_dashboard')
+
+@login_required
+@user_passes_test(is_admin_or_principal)
+def promote_students_ajax(request):
+    """AJAX endpoint for promoting students"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            student_ids = data.get('student_ids', [])
+            academic_year = data.get('academic_year')
+            next_academic_year = data.get('next_academic_year')
+            min_average = float(data.get('min_average', 70.0))
+            
+            promoted = []
+            not_promoted = []
+            
+            for student_id in student_ids:
+                try:
+                    student = Student.objects.get(id=student_id)
+                    current_class = student.current_class
+                    
+                    if not current_class:
+                        not_promoted.append({'student': student, 'reason': 'No current class'})
+                        continue
+                    
+                    # Calculate average
+                    grades = Grade.objects.filter(
+                        student=student,
+                        academic_year=academic_year
+                    )
+                    
+                    if not grades.exists():
+                        not_promoted.append({'student': student, 'reason': 'No grades found'})
+                        continue
+                    
+                    average_score = grades.aggregate(avg_score=Avg('score'))['avg_score'] or 0
+                    average_percentage = (average_score / 100) * 100
+                    
+                    if average_percentage >= min_average:
+                        # Find next class
+                        next_class = get_next_class(current_class, next_academic_year)
+                        
+                        if next_class:
+                            # Create promotion record
+                            Promotion.objects.create(
+                                student=student,
+                                from_class=current_class,
+                                to_class=next_class,
+                                academic_year=academic_year,
+                                average_score=average_percentage,
+                                promoted_by=request.user.teacher if hasattr(request.user, 'teacher') else None,
+                                notes=f"Manually promoted by {request.user.get_full_name()}"
+                            )
+                            
+                            # Update student class
+                            student.current_class = next_class
+                            student.save()
+                            
+                            promoted.append({
+                                'student': student,
+                                'average': average_percentage,
+                                'from_class': current_class,
+                                'to_class': next_class
+                            })
+                        else:
+                            not_promoted.append({'student': student, 'reason': 'Cannot determine next class'})
+                    else:
+                        not_promoted.append({'student': student, 'reason': f'Average {average_percentage:.1f}% < {min_average}%'})
+                        
+                except Exception as e:
+                    not_promoted.append({'student': student_id, 'reason': f'Error: {str(e)}'})
+            
+            return JsonResponse({
+                'success': True,
+                'promoted': len(promoted),
+                'not_promoted': len(not_promoted),
+                'promoted_details': promoted,
+                'not_promoted_details': not_promoted
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+def get_next_class(current_class, next_academic_year):
+    """Helper function to determine next class"""
+    try:
+        class_name = current_class.name
+        if 'Grade' in class_name:
+            grade_num = int(class_name.split()[-1])
+            next_grade = grade_num + 1
+            next_class_name = f"Grade {next_grade}"
+        else:
+            return None
+        
+        next_class, created = Class.objects.get_or_create(
+            name=next_class_name,
+            section=current_class.section,
+            academic_year=next_academic_year
+        )
+        
+        return next_class
+        
+    except (ValueError, IndexError):
+        return None
