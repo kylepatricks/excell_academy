@@ -44,9 +44,7 @@ PAYSTACK_SECRET_KEY=os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY=os.getenv('PAYSTACK_PUBLIC_KEY')
 PAYSTACK_BASE_URL =os.getenv('PAYSTACK_BASE_URL')
 
-DATABASES = {
-    'default': dj_database_url.config()
-}
+DATABASES = config('DATABASE_URL', default=None)
 
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
