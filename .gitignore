@@ -25,6 +25,23 @@ TestResults.xml
 /static/
 /staticfiles/
 
+# PostgreSQL
+# **************
+
+# Ignore any local PostgreSQL data directory (if you run a local server with data in your project folder)
+/postgresql_data/
+
+# Ignore common PostgreSQL log files
+*.log
+pg_log/
+
+postmaster.pid
+postmaster.opts
+
+pg_internal.init
+
+postgresql.auto.conf
+
 *.sqlite3
 *.db
 db.sqlite3
