@@ -48,7 +48,11 @@ database_url = config('DATABASE_URL', default=None)
 
 if database_url:
     DATABASES = {
-        'default': dj_database_url.parse(database_url)
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600, 
+            ssl_require=True 
+        )
     }
 else:
     DATABASES = {

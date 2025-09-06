@@ -118,3 +118,10 @@ def contact(request):
         return redirect('home')
     
     return render(request, 'core/contact.html')
+
+from django.http import HttpResponse
+from django.db import connection
+
+def test_db(request):
+    db_engine = connection.settings_dict['ENGINE']
+    return HttpResponse(f"You are connected to the database: {db_engine}")
