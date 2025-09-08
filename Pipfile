@@ -16,6 +16,7 @@ dj-database-url = "*"
 waitress = "*"
 python-dotenv = "*"
 xhtml2pdf = "*"
+django-cloudinary-storage = "*"
 
 [dev-packages]
 
