@@ -49,7 +49,7 @@ database_url = config('DATABASE_URL', default=None)
 if database_url:
     DATABASES = {
         'default': dj_database_url.config(
-            default=database_url,
+            default='postgresql://postgres_name_excell_academy_user:m83k3hFipDjTHUSHqfLZHXvC7404HDq5@dpg-d2m7kondiees73clj93g-a/postgres_name_excell_academy',
             conn_max_age=600, 
             ssl_require=True 
         )
