@@ -1,5 +1,5 @@
 # accounts/urls.py
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 from django.contrib.auth import views as auth_views
 
@@ -25,4 +25,6 @@ urlpatterns = [
     path('user-management/', views.user_management, name='user_management'),
     path('user/<int:user_id>/', views.user_detail, name='user_detail'),
     path('user/<int:user_id>/toggle-status/', views.toggle_user_status, name='toggle_user_status'),
+
+    re_path(r'^media/(?P<path>.*)$', views.serve_media),
 ]

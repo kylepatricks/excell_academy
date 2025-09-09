@@ -396,3 +396,15 @@ def toggle_user_status(request, user_id):
     messages.success(request, f'User {user.username} has been {action}.')
     
     return redirect('user_management')
+
+from django.http import HttpResponseForbidden
+from django.views.static import serve
+from django.conf import settings
+import os
+
+def serve_media(request, path):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden("Access denied")
+    
+    document_root = settings.MEDIA_ROOT
+    return serve(request, path, document_root=document_root)
