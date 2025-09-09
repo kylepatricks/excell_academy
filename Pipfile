@@ -17,6 +17,7 @@ waitress = "*"
 python-dotenv = "*"
 xhtml2pdf = "*"
 django-cloudinary-storage = "*"
+cloudinary = "*"
 
 [dev-packages]
 
